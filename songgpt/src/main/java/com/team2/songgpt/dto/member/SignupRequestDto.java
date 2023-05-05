@@ -3,6 +3,7 @@ package com.team2.songgpt.dto.member;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -14,7 +15,7 @@ public class SignupRequestDto {
     @NotBlank
     private String email;
 
-    @Pattern(regexp = "^[a-z0-9]{4,10}$")
+    @Size(min = 4, max = 6)
     @NotBlank
     private String nickname;
 

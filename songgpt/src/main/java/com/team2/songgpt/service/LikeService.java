@@ -27,7 +27,6 @@ public class LikeService {
     @Transactional
     public ResponseDto updatePostLike(Long id, Member member) {
         Post post = validatePost(id);// 게시글 존재확인.
-        isPostLike(member, post);//좋아요 여부확인.
 
         if (isPostLike(member, post)) {
             return ResponseDto.setSuccess("이미 좋아요 했습니다.", new LikeResponseDto(post, true)); // responsedto의 data가 likeResponseDto가 됨.
@@ -62,10 +61,6 @@ public class LikeService {
 
     // 좋아요 여부확인
     private boolean isPostLike(Member member, Post post) {
-        Optional<Like> like = likeRepository.findByMemberIdAndPostId(member.getId(), post.getId());
-        if (like.isPresent()) {
-            return true;
-        }
-        return false;
+        return likeRepository.findByMemberIdAndPostId(member.getId(), post.getId()).isPresent();
     }
 }

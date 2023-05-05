@@ -47,7 +47,7 @@ public class Post extends TimeStamped {
     private Member member;
 
     @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
-    private List<Like> likes = new ArrayList<>();
+    private List<Likes> likes = new ArrayList<>();
 
     @Builder
     public Post(PostRequestDto postRequestDto, Member member) {
@@ -59,9 +59,5 @@ public class Post extends TimeStamped {
         this.weatherTag = postRequestDto.getWeatherTag();
         this.genreTag = postRequestDto.getGenreTag();
         this.likes = new ArrayList<>();
-    }
-
-    public void updateLike(Like like) {
-        likes.add(like);
     }
 }

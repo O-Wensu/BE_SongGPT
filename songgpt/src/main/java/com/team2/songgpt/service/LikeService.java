@@ -1,7 +1,7 @@
 package com.team2.songgpt.service;
 
 import com.team2.songgpt.dto.like.LikeResponseDto;
-import com.team2.songgpt.entity.Like;
+import com.team2.songgpt.entity.Likes;
 import com.team2.songgpt.entity.Member;
 import com.team2.songgpt.entity.Post;
 import com.team2.songgpt.global.dto.ResponseDto;
@@ -23,33 +23,33 @@ public class LikeService {
     private final PostRepository postRepository;
     private final LikeRepository likeRepository;
 
-    // 좋아요
+    /**
+     * 좋아요
+     */
     @Transactional
     public ResponseDto updatePostLike(Long id, Member member) {
         Post post = validatePost(id);// 게시글 존재확인.
-
-        if (isPostLike(member, post)) {
-            return ResponseDto.setSuccess("이미 좋아요 했습니다.", new LikeResponseDto(post, true)); // responsedto의 data가 likeResponseDto가 됨.
+        Likes postLike = isPostLike(member, post);
+        if (postLike != null) {
+            return ResponseDto.setSuccess("Already Like", new LikeResponseDto(post, true)); // responsedto의 data가 likeResponseDto가 됨.
         }
 
-        Like like = new Like(member, post);
-        post.updateLike(like);
-        return ResponseDto.setSuccess("좋아요 성공", new LikeResponseDto(post, true));
+        Likes likes = new Likes(member, post);
+        return ResponseDto.setSuccess("like success", new LikeResponseDto(post, true));
     }
 
+    /**
+     * 좋아요 취소
+     */
     @Transactional
-    // 좋아요 취소
     public ResponseDto cancelLikePost(Long id, Member member) {
         Post post = validatePost(id);
-
-        if (!isPostLike(member, post)) {
-            log.info("좋아요 안한 사람!");
-            return ResponseDto.setSuccess("좋아요를 하지 않았습니다.", new LikeResponseDto(post, false));
+        Likes postLike = isPostLike(member, post);
+        if (postLike == null) {
+            return ResponseDto.setSuccess("you dont have like", new LikeResponseDto(post, false));
         }
-//        post.getLikes().remove();
-        log.info("좋아요 한 사람!");
-        likeRepository.deleteByMemberIdAndPostId(member.getId(), id);
-        return ResponseDto.setSuccess("좋아요 취소", new LikeResponseDto(post, false));
+        post.getLikes().remove(postLike);
+        return ResponseDto.setSuccess("like cancel", new LikeResponseDto(post, false));
     }
 
     // 게시글 여부확인
@@ -60,7 +60,8 @@ public class LikeService {
     }
 
     // 좋아요 여부확인
-    private boolean isPostLike(Member member, Post post) {
-        return likeRepository.findByMemberIdAndPostId(member.getId(), post.getId()).isPresent();
+    private Likes isPostLike(Member member, Post post) {
+        Optional<Likes> like = likeRepository.findByMemberIdAndPostId(member.getId(), post.getId());
+        return like.orElse(null);
     }
 }

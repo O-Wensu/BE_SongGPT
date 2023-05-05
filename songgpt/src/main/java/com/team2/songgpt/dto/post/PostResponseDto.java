@@ -1,6 +1,5 @@
 package com.team2.songgpt.dto.post;
 
-import com.team2.songgpt.entity.Like;
 import com.team2.songgpt.entity.Post;
 import com.team2.songgpt.global.entity.FeelEnum;
 import com.team2.songgpt.global.entity.GenreEnum;

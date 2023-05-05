@@ -1,6 +1,6 @@
 package com.team2.songgpt.dto.like;
 
-import com.team2.songgpt.entity.Like;
+import com.team2.songgpt.entity.Likes;
 import com.team2.songgpt.entity.Post;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,8 +14,8 @@ public class LikeResponseDto {
     public LikeResponseDto(Post post, boolean likeStatus) {
         this.likeStatus = likeStatus;
         this.likeCount = post.getLikes().size();
-        for (Like like : post.getLikes()) {
-            System.out.println(like);
+        for (Likes likes : post.getLikes()) {
+            System.out.println(likes);
         }
     }
 }

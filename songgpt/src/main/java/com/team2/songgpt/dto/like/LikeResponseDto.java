@@ -4,8 +4,8 @@ import com.team2.songgpt.entity.Post;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Data
-@AllArgsConstructor
+@Getter
+@NoArgsConstructor
 public class LikeResponseDto {
     private boolean likeStatus;
     private int likeCount;

@@ -54,11 +54,13 @@ public class PostService {
      */
     public ResponseDto<List<PostResponseDto>> getPosts(Pageable pageable, Member member) {
         List<Post> responseList = postRepository.findAll(pageable).getContent();
-        List<PostResponseDto> postResponseDtoList = new ArrayList<>();
+        List<PostResponseDto> postResponseDtoList = responseList.stream().map(PostResponseDto::new).collect(Collectors.toList());
 
-        for (Post post : responseList) {
+        for (int i = 0; i < responseList.size(); i++) {
+            Post post = responseList.get(i);
+            int index = i;
             likeRepository.findByMemberIdAndPostId(member.getId(), post.getId()).ifPresent(like -> {
-                PostResponseDto responseDto = new PostResponseDto(post);
+                PostResponseDto responseDto = postResponseDtoList.get(index);
                 responseDto.setLikeStatus(true);
                 postResponseDtoList.add(responseDto);
             });

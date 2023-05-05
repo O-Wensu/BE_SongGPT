@@ -8,6 +8,7 @@ import com.team2.songgpt.global.dto.ResponseDto;
 import com.team2.songgpt.repository.LikeRepository;
 import com.team2.songgpt.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,6 +17,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
+@Slf4j
 public class LikeService {
 
     private final PostRepository postRepository;
@@ -32,7 +34,7 @@ public class LikeService {
         }
 
         Like like = new Like(member, post);
-        likeRepository.save(like);
+        post.updateLike(like);
         return ResponseDto.setSuccess("좋아요 성공", new LikeResponseDto(post, true));
     }
 
@@ -40,12 +42,13 @@ public class LikeService {
     // 좋아요 취소
     public ResponseDto cancelLikePost(Long id, Member member) {
         Post post = validatePost(id);
-        isPostLike(member,post);
 
         if (!isPostLike(member, post)) {
+            log.info("좋아요 안한 사람!");
             return ResponseDto.setSuccess("좋아요를 하지 않았습니다.", new LikeResponseDto(post, false));
         }
-
+//        post.getLikes().remove();
+        log.info("좋아요 한 사람!");
         likeRepository.deleteByMemberIdAndPostId(member.getId(), id);
         return ResponseDto.setSuccess("좋아요 취소", new LikeResponseDto(post, false));
     }

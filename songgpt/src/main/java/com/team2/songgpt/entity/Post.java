@@ -46,7 +46,7 @@ public class Post extends TimeStamped {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
     private List<Like> likes = new ArrayList<>();
 
     @Builder
@@ -58,5 +58,10 @@ public class Post extends TimeStamped {
         this.feelTag = postRequestDto.getFeelTag();
         this.weatherTag = postRequestDto.getWeatherTag();
         this.genreTag = postRequestDto.getGenreTag();
+        this.likes = new ArrayList<>();
+    }
+
+    public void updateLike(Like like) {
+        likes.add(like);
     }
 }

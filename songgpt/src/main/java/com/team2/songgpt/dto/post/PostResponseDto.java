@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 
 @Getter
 public class PostResponseDto {
+    private Long id;
     private String nickname;
     private String question;
     private String answer;
@@ -21,6 +22,7 @@ public class PostResponseDto {
     private int likeCount;
 
     public PostResponseDto(Post post) {
+        this.id = post.getId();
         this.nickname = post.getNickname();
         this.question = post.getQuestion();
         this.answer = post.getAnswer();

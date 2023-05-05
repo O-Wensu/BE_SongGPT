@@ -20,10 +20,11 @@ public class PostController {
 
     private final PostService postService;
 
+    // /post?page=0&size=4&sort=createdAt,DESC 요청으로 조회
     @ResponseBody
     @GetMapping
     public ResponseDto<List<PostResponseDto>> getPosts(Pageable pageable, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return postService.getPosts(pageable, userDetails.getMember()); //@RequestParam: ?page=1&size=10&sort=id,DESC
+        return postService.getPosts(pageable, userDetails.getMember());
     }
 
     @ResponseBody

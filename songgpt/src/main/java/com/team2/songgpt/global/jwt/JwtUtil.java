@@ -41,7 +41,7 @@ public class JwtUtil {
     }
 
     // 토큰 생성
-    public String createToken(String userId) {
+    public String createToken(String email) {
         Date date = new Date();
         Date exprTime = Date.from(Instant.now().plus(1, ChronoUnit.HOURS));
 
@@ -50,7 +50,7 @@ public class JwtUtil {
         return BEARER_PREFIX +
                 Jwts.builder()
                         .signWith(key,signatureAlgorithm) //생성한 key 객체와 key객체를 어떤 알고리즘을 통해 암호화 할건지 지정
-                        .setSubject(userId) //subject라는 키에 username 넣음
+                        .setSubject(email) //subject라는 키에 username 넣음
                         .setExpiration(exprTime) //(현재시간 + 1시간)토큰 유효기간 지정
                         .setIssuedAt(date) //언제 토큰이 생성 되었는가
                         .compact();

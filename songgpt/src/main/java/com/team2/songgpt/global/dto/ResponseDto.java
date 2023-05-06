@@ -13,6 +13,10 @@ public class ResponseDto<T> {
     private String message;
     private T data;
 
+    public static <T> ResponseDto<T> setSuccess(T data) {
+        return ResponseDto.set(StatusCode.OK, "success", data);
+    }
+
     public static <T> ResponseDto<T> setSuccess(String message, T data) {
         return ResponseDto.set(StatusCode.OK, message, data);
     }

@@ -3,6 +3,7 @@ package com.team2.songgpt.service;
 import com.team2.songgpt.dto.member.*;
 import com.team2.songgpt.entity.Member;
 import com.team2.songgpt.entity.RefreshToken;
+import com.team2.songgpt.global.dto.ResponseDto;
 import com.team2.songgpt.global.jwt.JwtUtil;
 import com.team2.songgpt.repository.MemberRepository;
 import com.team2.songgpt.repository.RefreshTokenRepository;
@@ -29,62 +30,59 @@ public class MemberService {
     private final PasswordEncoder passwordEncoder;
     private final RefreshTokenRepository refreshTokenRepository;
 
-
     @Transactional
-    public MemberResponseDto getMember(HttpServletRequest request) {
+    public ResponseDto<MemberResponseDto> getMember(HttpServletRequest request) {
         String token = jwtUtil.resolveToken(request, JwtUtil.ACCESS_TOKEN);
-        String userInfo;
 
-        if (token != null) {
-            if (jwtUtil.validateToken(token)) {
-                userInfo = jwtUtil.getUserInfoFromToken(token);
-                Member member = memberRepository.findByEmail(userInfo).orElseThrow(
-                        () -> new IllegalArgumentException("토큰이 유효하지 않습니다.")
-                );
-                return new MemberResponseDto(member);
-            } else {
-                throw new IllegalArgumentException("토큰이 유효하지 않습니다.");
-            }
-        }
-        throw new IllegalArgumentException("토큰이 없습니다.");
+        //토큰 유효성 검사
+        validateToken(token);
+
+        String email = jwtUtil.getUserInfoFromToken(token);
+        Member member = validateIsMember(email);
+        return ResponseDto.setSuccess(new MemberResponseDto(member));
     }
 
+    /**
+     * 회원가입
+     */
     @Transactional
-    public void signup(@RequestBody SignupRequestDto signupRequestDto) {
+    public ResponseDto<?> signup(@RequestBody SignupRequestDto signupRequestDto) {
         String email = signupRequestDto.getEmail();
         String password = signupRequestDto.getPassword();
         String nickname = signupRequestDto.getNickname();
 
+        //비밀번호 암호화
         password = passwordEncoder.encode(password);
 
-        Optional<Member> findEmail = memberRepository.findByEmail(email);
-        if (findEmail.isPresent()) {
-            throw new IllegalArgumentException("중복된 email입니다.");
-        }
-
-        Optional<Member> findNickname = memberRepository.findByNickname(nickname);
-        if (findNickname.isPresent()) {
-            throw new IllegalArgumentException("중복된 닉네임입니다.");
-        }
+        //회원 존재 여부, 닉네임 중복 여부 확인
+        validateExistMember(email);
+        validateExistNickname(nickname);
 
         Member member = new Member(email, password, nickname);
         memberRepository.save(member);
+        return ResponseDto.setSuccess(null);
     }
 
+    /**
+     * 로그인
+     */
     @Transactional
-    public LoginResponseDto login(LoginRequestDto loginRequestDto, HttpServletResponse response) {
+    public ResponseDto<LoginResponseDto> login(LoginRequestDto loginRequestDto, HttpServletResponse response) {
         String email = loginRequestDto.getEmail();
         String password = loginRequestDto.getPassword();
 
-        Member member = memberRepository.findByEmail(email).orElseThrow(
-                () -> new IllegalArgumentException("잘못된 email입니다.")
-        );
-
-        if (!passwordEncoder.matches(password, member.getPassword())) {
-            throw new IllegalArgumentException("잘못된 비밀번호입니다.");
-        }
+        //회원 여부, 비밀번호 일치 여부 확인
+        Member member = validateIsMember(email);
+        validatePassword(password, member);
 
         TokenDto tokenDto = jwtUtil.createAllToken(member.getEmail());
+        saveRefreshToken(email, member, tokenDto);
+
+        setHeader(response, tokenDto);
+        return ResponseDto.setSuccess(new LoginResponseDto(member));
+    }
+
+    private void saveRefreshToken(String email, Member member, TokenDto tokenDto) {
         Optional<RefreshToken> refreshToken = refreshTokenRepository.findByEmail(member.getEmail());
 
         if (refreshToken.isPresent()) {
@@ -93,39 +91,78 @@ public class MemberService {
             RefreshToken newToken = new RefreshToken(tokenDto.getRefreshToken(), email);
             refreshTokenRepository.save(newToken);
         }
-
-        setHeader(response, tokenDto);
-        return new LoginResponseDto(member);
     }
 
+    /**
+     * 로그아웃
+     */
     @Transactional
-    public String logout(HttpServletRequest request) {
+    public ResponseDto<?> logout(HttpServletRequest request, HttpServletResponse response) {
         String token = jwtUtil.resolveToken(request, JwtUtil.ACCESS_TOKEN);
-        String userInfo;
 
-        if (token != null) {
-            if (jwtUtil.validateToken(token)) {
-                userInfo = jwtUtil.getUserInfoFromToken(token);
-                Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        //토큰 유효성 검사
+        validateToken(token);
 
-                if (authentication != null && authentication.isAuthenticated() && userInfo.equals(authentication.getName())) {
-                    //만료시간이 현재 시간 이전으로 설정된 accessToken을 만들어서 클라이언트에 보냄
-                    Date now = new Date();
-                    Date expiredDate = new Date(now.getTime() - 1000);
-                    Jwts.builder().setExpiration(expiredDate);
-                    String newToken = jwtUtil.createExpiredToken(userInfo, JwtUtil.ACCESS_TOKEN, expiredDate);
-                    SecurityContextHolder.getContext().setAuthentication(null);
-                    return newToken;
-                } else {
-                    throw new IllegalArgumentException("토큰이 유효하지 않습니다.");
-                }
-            }
-        }
-        throw new IllegalArgumentException("토큰이 없습니다.");
+        String userInfo = jwtUtil.getUserInfoFromToken(token);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        //로그인 여부 확인
+        isLogin(userInfo, authentication);
+
+        //만료시간이 현재 시간 이전으로 설정된 accessToken을 만들어서 클라이언트에 보냄
+        Date now = new Date();
+        Date expiredDate = new Date(now.getTime() - 1000);
+        Jwts.builder().setExpiration(expiredDate);
+        String newToken = jwtUtil.createExpiredToken(userInfo, JwtUtil.ACCESS_TOKEN, expiredDate);
+        SecurityContextHolder.getContext().setAuthentication(null);
+        response.setHeader(JwtUtil.ACCESS_TOKEN, newToken);
+        return ResponseDto.setSuccess(null);
     }
 
+    //응답 헤더에 액세스, 리프레시 토큰 추가
     public void setHeader(HttpServletResponse response, TokenDto tokenDto) {
         response.addHeader(JwtUtil.ACCESS_TOKEN, tokenDto.getAccessToken());
         response.addHeader(JwtUtil.REFRESH_TOKEN, tokenDto.getRefreshToken());
+    }
+
+    // ==== 유효성 검사 ====
+
+    private void validateExistMember(String email) {
+        memberRepository.findByEmail(email).ifPresent(member -> {
+            throw new IllegalArgumentException("이미 등록된 회원입니다.");
+        });
+    }
+
+    private void validateExistNickname(String nickname) {
+        memberRepository.findByNickname(nickname).ifPresent(member -> {
+            throw new IllegalArgumentException("중복된 닉네임입니다.");
+        });
+    }
+
+    private Member validateIsMember(String email) {
+        return memberRepository.findByEmail(email).orElseThrow(
+                () -> new IllegalArgumentException("등록되지 않은 회원입니다.")
+        );
+    }
+
+    private void validatePassword(String password, Member member) {
+        if (!passwordEncoder.matches(password, member.getPassword())) {
+            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+        }
+    }
+
+    private void validateToken(String token) {
+        if (token == null) {
+            throw new IllegalArgumentException("토큰이 존재하지 않습니다.");
+        }
+        if (!jwtUtil.validateToken(token)) {
+            throw new IllegalArgumentException("토큰이 유효하지 않습니다.");
+        }
+    }
+
+    private void isLogin(String userInfo, Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated() || !userInfo.equals(authentication.getName())) {
+            throw new IllegalArgumentException("로그인한 회원이 아닙니다.");
+        }
     }
 }

@@ -3,14 +3,13 @@ spring:
     url: jdbc:h2:mem:db
     driver-class-name: org.h2.Driver
     username: sa
-
   jpa:
-    hibernate:
-      ddl-auto: create
     properties:
       hibernate:
-        format_sql: true
-        globally_quoted_identifiers: true
+        globally_quoted_identifiers: 'true'
+  h2:
+    console:
+      enabled: 'true'
   messages:
     encoding: UTF-8
   profiles:

@@ -2,6 +2,7 @@ package com.team2.songgpt.service;
 
 import com.team2.songgpt.dto.gpt.*;
 import com.team2.songgpt.global.config.GptConfig;
+import com.team2.songgpt.global.dto.ResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.validator.internal.IgnoreForbiddenApisErrors;
 import org.springframework.http.HttpEntity;
@@ -55,10 +56,17 @@ public class GptService {
     }
 
 
-    public GptResponseDto askQuestion(QuestionRequestDto requestDto) {
+    public ResponseDto<AnswerResponseDto> askQuestion(QuestionRequestDto requestDto) {
         List<Messages> messages = new ArrayList<>();
         messages.add(new Messages(requestDto.getQuestion()+" 어울리는 노래 추천 좀 해줘", "user"));
+        GptResponseDto gptResponseDto = this.getResponse(this.buildHttpEntity(new GptRequestDto(GptConfig.MODEL, messages)));
+        List<Choice> choices = gptResponseDto.getChoices();
+        String answer = "";
 
-        return this.getResponse(this.buildHttpEntity(new GptRequestDto(GptConfig.MODEL, messages)));
+        for (Choice ch : choices) {
+            answer += ch.getMessage().getContent();
+        }
+
+        return ResponseDto.setSuccess("success", new AnswerResponseDto(answer));
     }
 }

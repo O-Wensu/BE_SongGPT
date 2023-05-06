@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/chat-gpt")
+@RequestMapping("chat-gpt")
 @RequiredArgsConstructor
 public class GptController {
     private final GptService gptService;
@@ -19,8 +19,9 @@ public class GptController {
         return gptService.askQuestion(requestDto);
     }
 
-    @GetMapping("/Model")
-    public CheckModelResponseDto checkModel() {
-        return gptService.checkModel();
+    @PostMapping("/question/text")
+    public ResponseDto<AnswerResponseDto> sendTextQuestion(@RequestBody QuestionRequestDto requestDto) {
+        return gptService.askTextQuestion(requestDto);
     }
+
 }

@@ -10,6 +10,9 @@ public class GptConfig {
 
     public static String MODEL = "gpt-3.5-turbo";
 
+    public static final String CHAT_MODEL = "gpt-3.5-turbo";
+    public static final String TEXT_MODEL = "text-davinci-003";
+
     public static final String AUTHORIZATION = "Authorization";
     public static final String BEARER = "Bearer ";
     public static final Integer MAX_TOKEN = 300;
@@ -26,4 +29,5 @@ public class GptConfig {
     public static void setMODEL(String MODEL) {
         GptConfig.MODEL = MODEL;
     }
+
 }

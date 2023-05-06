@@ -1,6 +1,7 @@
 package com.team2.songgpt.dto.gpt;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -16,6 +17,7 @@ public class Usage {
     @JsonProperty("prompt_tokens")
     private Integer promptTokens;
 
+    @Builder
     public Usage(Integer totalTokens, Integer completionTokens, Integer promptTokens) {
         this.totalTokens = totalTokens;
         this.completionTokens = completionTokens;

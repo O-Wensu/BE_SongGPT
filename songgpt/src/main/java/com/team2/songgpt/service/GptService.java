@@ -21,13 +21,13 @@ public class GptService {
     private final GptConfig gptConfig;
     private static RestTemplate restTemplate = new RestTemplate();
 
-    public HttpEntity<Object> buildHttpEntity(GptRequestDto requestDto) {
+    public HttpEntity<GptRequestDto> buildHttpEntity(GptRequestDto requestDto) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.parseMediaType(GptConfig.MEDIA_TYPE));
         headers.add(GptConfig.AUTHORIZATION, GptConfig.BEARER + gptConfig.getApiKey());
         return new HttpEntity<>(requestDto, headers);
     }
-    public HttpEntity<Object> buildHttpEntity(TextGptRequestDto requestDto) {
+    public HttpEntity<TextGptRequestDto> buildHttpEntity(TextGptRequestDto requestDto) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.parseMediaType(GptConfig.MEDIA_TYPE));
         headers.add(GptConfig.AUTHORIZATION, GptConfig.BEARER + gptConfig.getApiKey());
@@ -50,14 +50,23 @@ public class GptService {
         return true;
     }
 
-    public GptResponseDto getResponse(HttpEntity<Object> chatGptRequestDtoHttpEntity) {
+    public GptResponseDto getResponse(HttpEntity<GptRequestDto> chatGptRequestDtoHttpEntity) {
         ResponseEntity<GptResponseDto> responseEntity = restTemplate.postForEntity(
-                GptConfig.URL,
+                GptConfig.CHAT_URL,
                 chatGptRequestDtoHttpEntity,
                 GptResponseDto.class);
 
         return responseEntity.getBody();
     }
+    public TextGptResponseDto getTextResponse(HttpEntity<TextGptRequestDto> chatGptRequestDtoHttpEntity) {
+        ResponseEntity<TextGptResponseDto> responseEntity = restTemplate.postForEntity(
+                GptConfig.TEXT_URL,
+                chatGptRequestDtoHttpEntity,
+                TextGptResponseDto.class);
+
+        return responseEntity.getBody();
+    }
+
 
     public ResponseDto<AnswerResponseDto> askQuestion(QuestionRequestDto requestDto) {
         //모델 종류 설정
@@ -78,19 +87,18 @@ public class GptService {
         //모델 종류 설정
         GptConfig.setMODEL(GptConfig.TEXT_MODEL);
 
-        List<Messages> messages = new ArrayList<>();
-        messages.add(new Messages(requestDto.getQuestion()+" 어울리는 노래 추천 좀 해줘", "user"));
-        GptResponseDto gptResponseDto = this.getResponse(this.buildHttpEntity(
+        TextGptResponseDto gptResponseDto = this.getTextResponse(this.buildHttpEntity(
                 new TextGptRequestDto(
                         GptConfig.TOP_P,
                         GptConfig.TEMPERATURE,
                         GptConfig.MAX_TOKEN,
-                        requestDto.getQuestion()+" 어울리는 노래 추천 좀 해줘",
+                        requestDto.getQuestion()+" \n" +
+                                "recommend some songs.",
                         GptConfig.MODEL)));
-        List<Choice> choices = gptResponseDto.getChoices();
+        List<TextChoice> choices = gptResponseDto.getChoices();
         StringBuilder answer = new StringBuilder();
 
-        for (Choice ch : choices) { answer.append(ch.getMessage().getContent());}
+        for (TextChoice ch : choices) { answer.append(ch.getText());}
 
         return ResponseDto.setSuccess("success", new AnswerResponseDto(answer.toString()));
     }

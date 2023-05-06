@@ -32,26 +32,16 @@ public class LikeService {
     public ResponseDto updatePostLike(Long id, Member member) {
         Post post = validatePost(id);// 게시글 존재확인.
         Likes postLike = isPostLike(member, post);
+
+        //좋아요한 사람
         if (postLike != null) {
-            return ResponseDto.setSuccess("Already Like", new LikeResponseDto(post, true)); // responsedto의 data가 likeResponseDto가 됨.
+            post.getLikes().remove(postLike);
+            return ResponseDto.setSuccess("like cancel", new LikeResponseDto(post, false));
         }
 
+        //좋아요 안 한 사람
         Likes likes = new Likes(member, post);
         return ResponseDto.setSuccess("like success", new LikeResponseDto(post, true));
-    }
-
-    /**
-     * 좋아요 취소
-     */
-    @Transactional
-    public ResponseDto cancelLikePost(Long id, Member member) {
-        Post post = validatePost(id);
-        Likes postLike = isPostLike(member, post);
-        if (postLike == null) {
-            return ResponseDto.setSuccess("you dont have like", new LikeResponseDto(post, false));
-        }
-        post.getLikes().remove(postLike);
-        return ResponseDto.setSuccess("like cancel", new LikeResponseDto(post, false));
     }
 
     @Transactional

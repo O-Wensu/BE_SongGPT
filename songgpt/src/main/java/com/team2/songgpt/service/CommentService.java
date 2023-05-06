@@ -28,7 +28,7 @@ public class CommentService {
     public ResponseDto<Long> saveComment(Long id, CommentRequestDto commentRequestDto, Member member) {
         Post post = ValidateExistPost(id);
         Comment comment = new Comment(commentRequestDto, post, member);
-        return ResponseDto.setSuccess("comment success", null);
+        return ResponseDto.setSuccess(null);
     }
 
     /**
@@ -39,7 +39,7 @@ public class CommentService {
         Comment comment = ValidateExistComment(id);
         validateCommentAuthor(member, comment);
         comment.modify(commentRequestDto);
-        return ResponseDto.setSuccess("modify success", comment.getId());
+        return ResponseDto.setSuccess(comment.getId());
     }
 
     /**
@@ -50,7 +50,7 @@ public class CommentService {
         Comment comment = ValidateExistComment(id);
         validateCommentAuthor(member, comment);
         comment.getPost().getComments().remove(comment);
-        return ResponseDto.setSuccess("delete success", null);
+        return ResponseDto.setSuccess(null);
     }
 
     // ==== 유효성 검증 ====

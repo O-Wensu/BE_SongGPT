@@ -36,12 +36,12 @@ public class LikeService {
         //좋아요한 사람
         if (postLike != null) {
             post.getLikes().remove(postLike);
-            return ResponseDto.setSuccess("like cancel", new LikeResponseDto(post, false));
+            return ResponseDto.setSuccess("like success", new LikeResponseDto(post, false));
         }
 
         //좋아요 안 한 사람
         Likes likes = new Likes(member, post);
-        return ResponseDto.setSuccess("like success", new LikeResponseDto(post, true));
+        return ResponseDto.setSuccess("cancel success", new LikeResponseDto(post, true));
     }
 
     @Transactional

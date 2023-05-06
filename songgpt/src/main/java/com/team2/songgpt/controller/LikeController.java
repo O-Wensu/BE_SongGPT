@@ -26,6 +26,6 @@ public class LikeController {
     @GetMapping
     public ResponseDto<List<Long>> getLikePosts(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         List<Long> postIdList = likeService.getLikePosts(userDetails.getMember());
-        return ResponseDto.setSuccess("post list success", postIdList);
+        return ResponseDto.setSuccess(postIdList);
     }
 }

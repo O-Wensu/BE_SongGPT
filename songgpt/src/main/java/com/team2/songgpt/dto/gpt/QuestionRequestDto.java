@@ -1,8 +1,5 @@
 package com.team2.songgpt.dto.gpt;
 
-import com.team2.songgpt.global.entity.FeelEnum;
-import com.team2.songgpt.global.entity.GenreEnum;
-import com.team2.songgpt.global.entity.WeatherEnum;
 import lombok.Getter;
 
 import java.io.Serializable;

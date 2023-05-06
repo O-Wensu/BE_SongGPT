@@ -1,6 +1,5 @@
 package com.team2.songgpt.controller;
 
-import com.team2.songgpt.dto.like.LikeResponseDto;
 import com.team2.songgpt.global.dto.ResponseDto;
 import com.team2.songgpt.global.security.UserDetailsImpl;
 import com.team2.songgpt.service.LikeService;

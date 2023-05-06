@@ -4,7 +4,6 @@ import com.team2.songgpt.dto.gpt.*;
 import com.team2.songgpt.global.config.GptConfig;
 import com.team2.songgpt.global.dto.ResponseDto;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.validator.internal.IgnoreForbiddenApisErrors;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -29,7 +28,7 @@ public class GptService {
         return new HttpEntity<>(requestDto, headers);
     }
 
-    public CheckModelResponseDto checkModel(){
+    public CheckModelResponseDto checkModel() {
         HttpHeaders headers = new HttpHeaders();
         headers.add(GptConfig.AUTHORIZATION, GptConfig.BEARER + gptConfig.getApiKey());
         CheckModelRequestDto checkModelRequestDto = new CheckModelRequestDto();
@@ -47,18 +46,18 @@ public class GptService {
 
     public CheckModelResponseDto getModelInfo(HttpEntity<CheckModelRequestDto> httpEntity) {
         ResponseEntity<CheckModelResponseDto> responseEntity = restTemplate.postForEntity(
-                GptConfig.MODEL_INFO_URL+GptConfig.MODEL,
+                GptConfig.MODEL_INFO_URL + GptConfig.MODEL,
                 httpEntity,
                 CheckModelResponseDto.class);
 
-        System.out.println(GptConfig.MODEL_INFO_URL+GptConfig.MODEL);
+        System.out.println(GptConfig.MODEL_INFO_URL + GptConfig.MODEL);
         return responseEntity.getBody();
     }
 
 
     public ResponseDto<AnswerResponseDto> askQuestion(QuestionRequestDto requestDto) {
         List<Messages> messages = new ArrayList<>();
-        messages.add(new Messages(requestDto.getQuestion()+" 어울리는 노래 추천 좀 해줘", "user"));
+        messages.add(new Messages(requestDto.getQuestion() + " 어울리는 노래 추천 좀 해줘", "user"));
         GptResponseDto gptResponseDto = this.getResponse(this.buildHttpEntity(new GptRequestDto(GptConfig.MODEL, messages)));
         List<Choice> choices = gptResponseDto.getChoices();
         String answer = "";

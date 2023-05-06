@@ -6,9 +6,7 @@ import com.team2.songgpt.entity.RefreshToken;
 import com.team2.songgpt.global.jwt.JwtUtil;
 import com.team2.songgpt.repository.MemberRepository;
 import com.team2.songgpt.repository.RefreshTokenRepository;
-import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +17,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import java.security.Key;
 import java.util.Date;
 import java.util.Optional;
 
@@ -61,12 +58,12 @@ public class MemberService {
         password = passwordEncoder.encode(password);
 
         Optional<Member> findEmail = memberRepository.findByEmail(email);
-        if(findEmail.isPresent()) {
+        if (findEmail.isPresent()) {
             throw new IllegalArgumentException("중복된 email입니다.");
         }
 
         Optional<Member> findNickname = memberRepository.findByNickname(nickname);
-        if(findNickname.isPresent()) {
+        if (findNickname.isPresent()) {
             throw new IllegalArgumentException("중복된 닉네임입니다.");
         }
 
@@ -80,7 +77,7 @@ public class MemberService {
         String password = loginRequestDto.getPassword();
 
         Member member = memberRepository.findByEmail(email).orElseThrow(
-        () -> new IllegalArgumentException("잘못된 email입니다.")
+                () -> new IllegalArgumentException("잘못된 email입니다.")
         );
 
         if (!passwordEncoder.matches(password, member.getPassword())) {
@@ -120,7 +117,7 @@ public class MemberService {
                     SecurityContextHolder.getContext().setAuthentication(null);
                     return newToken;
                 } else {
-                throw new IllegalArgumentException("토큰이 유효하지 않습니다.");
+                    throw new IllegalArgumentException("토큰이 유효하지 않습니다.");
                 }
             }
         }

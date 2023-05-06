@@ -8,6 +8,7 @@ import com.team2.songgpt.global.dto.ResponseDto;
 import com.team2.songgpt.service.MemberService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,7 +25,7 @@ public class MemberController {
     }
 
     @PostMapping("/register")
-    public ResponseDto signup(@RequestBody SignupRequestDto signupRequestDto) {
+    public ResponseDto signup(@Valid @RequestBody SignupRequestDto signupRequestDto) {
         memberService.signup(signupRequestDto);
         return ResponseDto.setSuccess("회원가입 완료", null);
     }

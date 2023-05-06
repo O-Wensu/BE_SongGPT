@@ -1,5 +1,6 @@
 package com.team2.songgpt.dto.post;
 
+import com.team2.songgpt.dto.comment.CommentResponseDto;
 import com.team2.songgpt.entity.Post;
 import com.team2.songgpt.global.entity.FeelEnum;
 import com.team2.songgpt.global.entity.GenreEnum;
@@ -7,6 +8,9 @@ import com.team2.songgpt.global.entity.WeatherEnum;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 public class PostResponseDto {
@@ -18,6 +22,7 @@ public class PostResponseDto {
     private WeatherEnum weatherTag;
     private GenreEnum genreTag;
     private LocalDateTime createdAt;
+    private List<CommentResponseDto> comments;
     private boolean likeStatus;
     private int likeCount;
 
@@ -30,6 +35,7 @@ public class PostResponseDto {
         this.weatherTag = post.getWeatherTag();
         this.genreTag = post.getGenreTag();
         this.createdAt = post.getCreatedAt();
+        this.comments = post.getComments().stream().map(CommentResponseDto::new).collect(Collectors.toList());
         this.likeStatus = false;
         this.likeCount = post.getLikes().size();
     }

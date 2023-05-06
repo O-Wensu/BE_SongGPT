@@ -8,12 +8,14 @@ import com.team2.songgpt.global.dto.ResponseDto;
 import com.team2.songgpt.repository.CommentRepository;
 import com.team2.songgpt.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
+@Slf4j
 public class CommentService {
 
     private final PostRepository postRepository;
@@ -25,10 +27,8 @@ public class CommentService {
     @Transactional
     public ResponseDto<Long> saveComment(Long id, CommentRequestDto commentRequestDto, Member member) {
         Post post = ValidateExistPost(id);
-        Comment comment = new Comment(commentRequestDto);
-        comment.setMemberAndPost(member,post);
-        Comment savedComment = commentRepository.save(comment);
-        return ResponseDto.setSuccess("comment success", savedComment.getId());
+        Comment comment = new Comment(commentRequestDto, post, member);
+        return ResponseDto.setSuccess("comment success", null);
     }
 
     /**
@@ -49,7 +49,7 @@ public class CommentService {
     public ResponseDto<?> deleteComment(Long id, Member member) {
         Comment comment = ValidateExistComment(id);
         validateCommentAuthor(member, comment);
-        commentRepository.deleteById(comment.getId());
+        comment.getPost().getComments().remove(comment);
         return ResponseDto.setSuccess("delete success", null);
     }
 

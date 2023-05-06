@@ -47,6 +47,7 @@ public class Post extends TimeStamped {
     private Member member;
 
     @OneToMany(mappedBy = "post", orphanRemoval = true, cascade = CascadeType.ALL)
+    @OrderBy("createdAt desc")
     private List<Comment> comments = new ArrayList<>();
 
     @OneToMany(mappedBy = "post", orphanRemoval = true, cascade = CascadeType.ALL)
@@ -63,4 +64,5 @@ public class Post extends TimeStamped {
         this.genreTag = postRequestDto.getGenreTag();
         this.likes = new ArrayList<>();
     }
+
 }

@@ -1,6 +1,7 @@
 package com.team2.songgpt.entity;
 
 import com.team2.songgpt.dto.comment.CommentRequestDto;
+import com.team2.songgpt.global.entity.TimeStamped;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -9,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Comment {
+public class Comment extends TimeStamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "comment_id")
@@ -26,13 +27,11 @@ public class Comment {
     @JoinColumn(name = "post_id")
     public Post post;
 
-    public Comment(CommentRequestDto commentRequestDto) {
+    public Comment(CommentRequestDto commentRequestDto, Post post, Member member) {
         this.content = commentRequestDto.getContent();
-    }
-
-    public void setMemberAndPost(Member member, Post post) {
-        this.member = member;
         this.post = post;
+        this.member = member;
+        post.getComments().add(this);
     }
 
     public void modify(CommentRequestDto commentRequestDto) {

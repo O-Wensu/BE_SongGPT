@@ -1,12 +1,11 @@
 package com.team2.songgpt.service;
 
-import com.team2.songgpt.dto.member.LoginRequestDto;
-import com.team2.songgpt.dto.member.LoginResponseDto;
-import com.team2.songgpt.dto.member.MemberResponseDto;
-import com.team2.songgpt.dto.member.SignupRequestDto;
+import com.team2.songgpt.dto.member.*;
 import com.team2.songgpt.entity.Member;
+import com.team2.songgpt.entity.RefreshToken;
 import com.team2.songgpt.global.jwt.JwtUtil;
 import com.team2.songgpt.repository.MemberRepository;
+import com.team2.songgpt.repository.RefreshTokenRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -24,11 +23,12 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
+    private final RefreshTokenRepository refreshTokenRepository;
 
 
     @Transactional
     public MemberResponseDto getMember(HttpServletRequest request) {
-        String token = jwtUtil.resolveToken(request);
+        String token = jwtUtil.resolveToken(request, JwtUtil.ACCESS_TOKEN);
         String userInfo;
 
         if (token != null) {
@@ -80,7 +80,22 @@ public class MemberService {
             throw new IllegalArgumentException("잘못된 비밀번호입니다.");
         }
 
-        response.addHeader(JwtUtil.ACCESS_HEADER, jwtUtil.createToken(member.getEmail()));
+        TokenDto tokenDto = jwtUtil.createAllToken(member.getEmail());
+        Optional<RefreshToken> refreshToken = refreshTokenRepository.findByEmail(member.getEmail());
+
+        if (refreshToken.isPresent()) {
+            refreshTokenRepository.save(refreshToken.get().updateToken(tokenDto.getRefreshToken()));
+        } else {
+            RefreshToken newToken = new RefreshToken(tokenDto.getRefreshToken(), email);
+            refreshTokenRepository.save(newToken);
+        }
+
+        setHeader(response, tokenDto);
         return new LoginResponseDto(member);
+    }
+
+    public void setHeader(HttpServletResponse response, TokenDto tokenDto) {
+        response.addHeader(JwtUtil.ACCESS_TOKEN, tokenDto.getAccessToken());
+        response.addHeader(JwtUtil.REFRESH_TOKEN, tokenDto.getRefreshToken());
     }
 }

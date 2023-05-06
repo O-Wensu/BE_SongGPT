@@ -11,7 +11,6 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 public class GptResponseDto implements Serializable {
-    private String id;
     private String object;
     private LocalDate created;
     private String model;
@@ -22,7 +21,6 @@ public class GptResponseDto implements Serializable {
             String id, String object,
             LocalDate created, String model,
             List<Choice> choices) {
-        this.id = id;
         this.object = object;
         this.created = created;
         this.model = model;

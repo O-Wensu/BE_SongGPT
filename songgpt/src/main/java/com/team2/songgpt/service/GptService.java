@@ -37,13 +37,23 @@ public class GptService {
     }
 
     public GptResponseDto askQuestion(QuestionRequestDto requestDto) {
+        String question = genQuestion(requestDto);
+
         return this.getResponse(this.buildHttpEntity(
                 new GptRequestDto(
                         GptConfig.MODEL,
-                        requestDto.getQuestion(),
+                        question,
                         GptConfig.MAX_TOKEN,
                         GptConfig.TEMPERATURE,
                         GptConfig.TOP_P))
         );
+    }
+
+    private String genQuestion(QuestionRequestDto requestDto) {
+        return requestDto.getFeelTag().toString() + " ,"
+                + requestDto.getWeatherTag().toString() + " ,"
+                + requestDto.getGenreTag().toString() + " ,"
+                + requestDto.getRequirement()
+                + "Can you recommend some songs? \nAnswer in English.";
     }
 }

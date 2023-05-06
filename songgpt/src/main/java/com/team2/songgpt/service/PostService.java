@@ -64,7 +64,7 @@ public class PostService {
 
         for (Post post: responseList) {
             PostResponseDto postResponseDto = new PostResponseDto(post);
-            if (likeRepository.findByMemberIdAndPostId(member.getId(), post.getId()).isEmpty()) {
+            if (likeRepository.findByMemberIdAndPostId(member.getId(), post.getId()).isPresent()) {
                 postResponseDto.setLikeStatus(true);
             }
             postResponseDtoList.add(postResponseDto);

@@ -19,22 +19,27 @@ public class MemberController {
     private final MemberService memberService;
 
     @GetMapping("/")
-    public ResponseDto<MemberResponseDto> getMember(HttpServletRequest request) {
-        return memberService.getMember(request);
+    public ResponseDto getMember(HttpServletRequest request) {
+        MemberResponseDto memberResponseDto = memberService.getMember(request);
+        return ResponseDto.setSuccess("회원 정보", memberResponseDto);
     }
 
     @PostMapping("/register")
-    public ResponseDto<?> signup(@Valid @RequestBody SignupRequestDto signupRequestDto) {
-        return memberService.signup(signupRequestDto);
+    public ResponseDto signup(@Valid @RequestBody SignupRequestDto signupRequestDto) {
+        memberService.signup(signupRequestDto);
+        return ResponseDto.setSuccess("회원가입 완료", null);
     }
 
     @PostMapping("/login")
-    public ResponseDto<LoginResponseDto> login(@RequestBody LoginRequestDto loginRequestDto, HttpServletResponse response) {
-        return memberService.login(loginRequestDto, response);
+    public ResponseDto login(@RequestBody LoginRequestDto loginRequestDto, HttpServletResponse response) {
+        LoginResponseDto loginResponseDto = memberService.login(loginRequestDto, response);
+        return ResponseDto.setSuccess("로그인 완료", loginResponseDto);
     }
 
     @PostMapping("/logout")
-    public ResponseDto<?> logout(HttpServletRequest request, HttpServletResponse response) {
-        return memberService.logout(request, response);
+    public ResponseDto logout(HttpServletRequest request, HttpServletResponse response) {
+        String newToken = memberService.logout(request);
+        response.setHeader("Access_Token", newToken);
+        return ResponseDto.setSuccess("로그아웃 완료", null);
     }
 }

@@ -25,7 +25,7 @@ public class Post extends TimeStamped {
     private String nickname;
     @Column(nullable = false)
     private String question;
-    @Column(nullable = false)
+    @Column(nullable = false, length = 1000)
     private String answer;
 
     @Column(nullable = false)
@@ -54,7 +54,7 @@ public class Post extends TimeStamped {
     @Builder
     public Post(PostRequestDto postRequestDto, Member member) {
         this.nickname = member.getNickname();
-        this.question = postRequestDto.getQuestion();
+        this.question = String.valueOf(postRequestDto.getQuestion());
         this.answer = postRequestDto.getAnswer();
         this.member = member;
         this.feelTag = postRequestDto.getFeelTag();

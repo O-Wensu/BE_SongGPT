@@ -1,6 +1,5 @@
 package com.team2.songgpt.controller;
 
-import com.team2.songgpt.dto.like.LikeResponseDto;
 import com.team2.songgpt.global.dto.ResponseDto;
 import com.team2.songgpt.global.security.UserDetailsImpl;
 import com.team2.songgpt.service.LikeService;
@@ -17,16 +16,10 @@ public class LikeController {
 
     private final LikeService likeService;
 
-    //게시글좋아요
+    //좋아요
     @PostMapping("/{id}")
     public ResponseDto likePost(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return likeService.updatePostLike(id, userDetails.getMember());
-    }
-
-    //게시글좋아요취소
-    @DeleteMapping("/{id}")
-    public ResponseDto likeCancelPost(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return likeService.cancelLikePost(id, userDetails.getMember());
     }
 
     //게시글 좋아요 목록 가져오기

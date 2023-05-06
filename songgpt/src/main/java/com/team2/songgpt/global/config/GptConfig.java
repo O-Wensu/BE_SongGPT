@@ -22,7 +22,7 @@ public class GptConfig {
     public static final String URL = "https://api.openai.com/v1/chat/completions";
     public static final String MODEL_INFO_URL = "https://api.openai.com/v1/models/";
 
-    public String getApiKey(){
+    public String getApiKey() {
         return apiKey;
     }
 

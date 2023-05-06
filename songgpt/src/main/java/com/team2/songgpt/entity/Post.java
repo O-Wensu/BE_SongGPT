@@ -6,16 +6,14 @@ import com.team2.songgpt.global.entity.GenreEnum;
 import com.team2.songgpt.global.entity.TimeStamped;
 import com.team2.songgpt.global.entity.WeatherEnum;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Post extends TimeStamped {
     @Id
@@ -27,7 +25,7 @@ public class Post extends TimeStamped {
     private String nickname;
     @Column(nullable = false)
     private String question;
-    @Column(nullable = false)
+    @Column(nullable = false, length = 1000)
     private String answer;
 
     @Column(nullable = false)
@@ -41,8 +39,6 @@ public class Post extends TimeStamped {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private GenreEnum genreTag;
-
-    private String requirement;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
@@ -58,13 +54,12 @@ public class Post extends TimeStamped {
     @Builder
     public Post(PostRequestDto postRequestDto, Member member) {
         this.nickname = member.getNickname();
-        this.question = postRequestDto.getQuestion();
+        this.question = String.valueOf(postRequestDto.getQuestion());
         this.answer = postRequestDto.getAnswer();
         this.member = member;
         this.feelTag = postRequestDto.getFeelTag();
         this.weatherTag = postRequestDto.getWeatherTag();
         this.genreTag = postRequestDto.getGenreTag();
-        this.requirement = postRequestDto.getRequirement();
         this.likes = new ArrayList<>();
     }
 

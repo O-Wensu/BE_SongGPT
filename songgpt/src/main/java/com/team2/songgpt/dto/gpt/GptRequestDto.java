@@ -1,6 +1,5 @@
 package com.team2.songgpt.dto.gpt;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

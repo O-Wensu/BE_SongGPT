@@ -35,7 +35,7 @@ public class ExceptionAdvisor {
     }
 
     /**
-     *  예외
+     * 예외
      */
     @ExceptionHandler({NoSuchElementException.class, IllegalArgumentException.class})
     public ResponseEntity exceptionHandler(Exception exception) {

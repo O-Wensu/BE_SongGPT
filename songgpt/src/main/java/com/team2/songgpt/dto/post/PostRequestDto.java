@@ -14,4 +14,5 @@ public class PostRequestDto {
     private FeelEnum feelTag;
     private WeatherEnum weatherTag;
     private GenreEnum genreTag;
+    private String requirement;
 }

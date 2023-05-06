@@ -1,29 +1,23 @@
 package com.team2.songgpt.dto.gpt;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.io.Serializable;
+import java.util.List;
 
+@Setter
 @Getter
 @NoArgsConstructor
 public class GptRequestDto implements Serializable {
     private String model;
-    private String prompt;
-    @JsonProperty("max_tokens")
-    private Integer maxTokens;
-    private Double temperature;
-    @JsonProperty("top_p")
-    private Double topP;
+    private List<Messages> messages;
 
     @Builder
-    public GptRequestDto(String model, String prompt, Integer maxTokens, Double temperature, Double topP) {
+    public GptRequestDto(String model, List<Messages> messages) {
         this.model = model;
-        this.prompt = prompt;
-        this.maxTokens = maxTokens;
-        this.temperature = temperature;
-        this.topP = topP;
+        this.messages = messages;
     }
 }

@@ -36,7 +36,7 @@ public class UserDetailsImpl implements UserDetails {
         return this.userEmail;
     }
 
-    public String getNickname(){
+    public String getNickname() {
         return this.member.getNickname();
     }
 

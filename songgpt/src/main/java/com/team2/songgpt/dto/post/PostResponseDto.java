@@ -8,7 +8,6 @@ import com.team2.songgpt.global.entity.WeatherEnum;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,7 +20,6 @@ public class PostResponseDto {
     private FeelEnum feelTag;
     private WeatherEnum weatherTag;
     private GenreEnum genreTag;
-    private String requirement;
     private LocalDateTime createdAt;
     private List<CommentResponseDto> comments;
     private boolean likeStatus;
@@ -35,7 +33,6 @@ public class PostResponseDto {
         this.feelTag = post.getFeelTag();
         this.weatherTag = post.getWeatherTag();
         this.genreTag = post.getGenreTag();
-        this.requirement = post.getRequirement();
         this.createdAt = post.getCreatedAt();
         this.comments = post.getComments().stream().map(CommentResponseDto::new).collect(Collectors.toList());
         this.likeStatus = false;

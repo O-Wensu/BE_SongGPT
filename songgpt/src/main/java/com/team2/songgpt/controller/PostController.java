@@ -21,7 +21,7 @@ public class PostController {
 
     private final PostService postService;
 
-    // /post?page=0&size=4&sort=createdAt,DESC 요청으로 조회
+    // /board?page=0&size=4&sort=createdAt,DESC 요청으로 조회
     @GetMapping("/board")
     public ResponseDto<List<PostResponseDto>> getPosts(Pageable pageable) {
         if (!isAuthenticated()) {
@@ -31,7 +31,7 @@ public class PostController {
     }
 
     @GetMapping("/board/{id}")
-    public ResponseDto<PostResponseDto> getPost(@PathVariable Long id){
+    public ResponseDto<PostResponseDto> getPost(@PathVariable Long id) {
         if (!isAuthenticated()) {
             return postService.getPostByAnonmous(id);
         }

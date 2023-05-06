@@ -11,8 +11,6 @@ import com.team2.songgpt.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -62,7 +60,7 @@ public class PostService {
         List<Post> responseList = postRepository.findAll(pageable).getContent();
         List<PostResponseDto> postResponseDtoList = new ArrayList<>();
 
-        for (Post post: responseList) {
+        for (Post post : responseList) {
             PostResponseDto postResponseDto = new PostResponseDto(post);
             if (likeRepository.findByMemberIdAndPostId(member.getId(), post.getId()).isPresent()) {
                 postResponseDto.setLikeStatus(true);

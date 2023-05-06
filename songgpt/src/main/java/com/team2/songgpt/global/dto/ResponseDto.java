@@ -13,15 +13,15 @@ public class ResponseDto<T> {
     private String message;
     private T data;
 
-    public static <T> ResponseDto<T> setSuccess(String message, T data){
+    public static <T> ResponseDto<T> setSuccess(String message, T data) {
         return ResponseDto.set(StatusCode.OK, message, data);
     }
 
-    public static <T> ResponseDto<T> setBadRequest(String message){
+    public static <T> ResponseDto<T> setBadRequest(String message) {
         return ResponseDto.set(StatusCode.BAD_REQUEST, message, null);
     }
 
-    public static <T> ResponseDto<T> setBadRequest(String message, T data){
+    public static <T> ResponseDto<T> setBadRequest(String message, T data) {
         return ResponseDto.set(StatusCode.BAD_REQUEST, message, data);
     }
 }

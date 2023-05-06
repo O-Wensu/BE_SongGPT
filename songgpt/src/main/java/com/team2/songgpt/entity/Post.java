@@ -6,16 +6,14 @@ import com.team2.songgpt.global.entity.GenreEnum;
 import com.team2.songgpt.global.entity.TimeStamped;
 import com.team2.songgpt.global.entity.WeatherEnum;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Post extends TimeStamped {
     @Id

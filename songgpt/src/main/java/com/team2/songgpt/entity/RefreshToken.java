@@ -7,8 +7,11 @@ import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Getter @Entity
+@Entity
+@Getter
+@Setter
 @NoArgsConstructor
 public class RefreshToken {
 

@@ -9,6 +9,7 @@ import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,6 +27,7 @@ import java.util.Optional;
 @Slf4j
 @Component
 @RequiredArgsConstructor
+@Getter
 public class JwtUtil {
 
     public static final String ACCESS_TOKEN = "Access_Token";
@@ -64,6 +66,18 @@ public class JwtUtil {
                         .signWith(key,signatureAlgorithm) //생성한 key 객체와 key객체를 어떤 알고리즘을 통해 암호화 할건지 지정
                         .setSubject(email) //subject라는 키에 username 넣음
                         .setExpiration(new Date(date.getTime() + time))
+                        .setIssuedAt(date) //언제 토큰이 생성 되었는가
+                        .compact();
+    }
+
+    public String createExpiredToken(String email, String type, Date expiredDate) {
+        Date date = new Date();
+
+        return BEARER_PREFIX +
+                Jwts.builder()
+                        .signWith(key,signatureAlgorithm) //생성한 key 객체와 key객체를 어떤 알고리즘을 통해 암호화 할건지 지정
+                        .setSubject(email) //subject라는 키에 username 넣음
+                        .setExpiration(expiredDate)
                         .setIssuedAt(date) //언제 토큰이 생성 되었는가
                         .compact();
     }

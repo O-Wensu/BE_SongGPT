@@ -1,11 +1,11 @@
 package com.team2.songgpt.global.entity;
 
 public enum WeatherEnum {
-    SUN("sun"),
-    CLOUD("cloud"),
-    RAIN("rain"),
-    SNOW("snow"),
-    STORM("storm");
+    SUN("sunny"),
+    CLOUD("cloudy"),
+    RAIN("rainy"),
+    SNOW("snowy"),
+    STORM("windy");
 
     private String weather;
 

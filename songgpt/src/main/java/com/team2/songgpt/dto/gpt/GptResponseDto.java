@@ -1,29 +1,31 @@
 package com.team2.songgpt.dto.gpt;
 
-import lombok.Builder;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
-import java.time.LocalDate;
 import java.util.List;
 
 @Getter
 @NoArgsConstructor
 public class GptResponseDto implements Serializable {
-    private String object;
-    private LocalDate created;
-    private String model;
+    @JsonProperty("usage")
+    private Usage usage;
+    @JsonProperty("choices")
     private List<Choice> choices;
+    @JsonProperty("created")
+    private int created;
+    @JsonProperty("object")
+    private String object;
+    @JsonProperty("id")
+    private String id;
 
-    @Builder
-    public GptResponseDto(
-            String id, String object,
-            LocalDate created, String model,
-            List<Choice> choices) {
-        this.object = object;
-        this.created = created;
-        this.model = model;
+    public GptResponseDto(Usage usage, List<Choice> choices, int created, String object, String id) {
+        this.usage = usage;
         this.choices = choices;
+        this.created = created;
+        this.object = object;
+        this.id = id;
     }
 }

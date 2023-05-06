@@ -9,8 +9,5 @@ import java.io.Serializable;
 
 @Getter
 public class QuestionRequestDto implements Serializable {
-    private FeelEnum feelTag;
-    private WeatherEnum weatherTag;
-    private GenreEnum genreTag;
-    private String requirement;
+    private String question;
 }

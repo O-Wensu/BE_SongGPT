@@ -1,8 +1,6 @@
 package com.team2.songgpt.service;
 
-import com.team2.songgpt.dto.gpt.GptRequestDto;
-import com.team2.songgpt.dto.gpt.GptResponseDto;
-import com.team2.songgpt.dto.gpt.QuestionRequestDto;
+import com.team2.songgpt.dto.gpt.*;
 import com.team2.songgpt.global.config.GptConfig;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.validator.internal.IgnoreForbiddenApisErrors;
@@ -12,6 +10,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +28,13 @@ public class GptService {
         return new HttpEntity<>(requestDto, headers);
     }
 
+    public CheckModelResponseDto checkModel(){
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(GptConfig.AUTHORIZATION, GptConfig.BEARER + gptConfig.getApiKey());
+        CheckModelRequestDto checkModelRequestDto = new CheckModelRequestDto();
+        return this.getModelInfo(new HttpEntity<>(checkModelRequestDto, headers));
+    }
+
     public GptResponseDto getResponse(HttpEntity<GptRequestDto> chatGptRequestDtoHttpEntity) {
         ResponseEntity<GptResponseDto> responseEntity = restTemplate.postForEntity(
                 GptConfig.URL,
@@ -36,24 +44,21 @@ public class GptService {
         return responseEntity.getBody();
     }
 
-    public GptResponseDto askQuestion(QuestionRequestDto requestDto) {
-        String question = genQuestion(requestDto);
+    public CheckModelResponseDto getModelInfo(HttpEntity<CheckModelRequestDto> httpEntity) {
+        ResponseEntity<CheckModelResponseDto> responseEntity = restTemplate.postForEntity(
+                GptConfig.MODEL_INFO_URL+GptConfig.MODEL,
+                httpEntity,
+                CheckModelResponseDto.class);
 
-        return this.getResponse(this.buildHttpEntity(
-                new GptRequestDto(
-                        GptConfig.MODEL,
-                        question,
-                        GptConfig.MAX_TOKEN,
-                        GptConfig.TEMPERATURE,
-                        GptConfig.TOP_P))
-        );
+        System.out.println(GptConfig.MODEL_INFO_URL+GptConfig.MODEL);
+        return responseEntity.getBody();
     }
 
-    private String genQuestion(QuestionRequestDto requestDto) {
-        return requestDto.getFeelTag().toString() + " ,"
-                + requestDto.getWeatherTag().toString() + " ,"
-                + requestDto.getGenreTag().toString() + " ,"
-                + requestDto.getRequirement()
-                + "Can you recommend some songs? \nAnswer in English.";
+
+    public GptResponseDto askQuestion(QuestionRequestDto requestDto) {
+        List<Messages> messages = new ArrayList<>();
+        messages.add(new Messages(requestDto.getQuestion()+" 어울리는 노래 추천 좀 해줘", "user"));
+
+        return this.getResponse(this.buildHttpEntity(new GptRequestDto(GptConfig.MODEL, messages)));
     }
 }

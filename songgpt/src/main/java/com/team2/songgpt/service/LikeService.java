@@ -12,7 +12,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -50,6 +52,11 @@ public class LikeService {
         }
         post.getLikes().remove(postLike);
         return ResponseDto.setSuccess("like cancel", new LikeResponseDto(post, false));
+    }
+
+    @Transactional
+    public List<Long> getLikePosts(Member member) {
+        return likeRepository.findAllByMemberId(member.getId()).stream().map(likes -> likes.getPost().getId()).collect(Collectors.toList());
     }
 
     // 게시글 여부확인

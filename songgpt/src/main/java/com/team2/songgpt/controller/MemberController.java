@@ -34,4 +34,11 @@ public class MemberController {
         LoginResponseDto loginResponseDto = memberService.login(loginRequestDto, response);
         return ResponseDto.setSuccess("로그인 완료", loginResponseDto);
     }
+
+    @PostMapping("/logout")
+    public ResponseDto logout(HttpServletRequest request, HttpServletResponse response) {
+        String newToken = memberService.logout(request);
+        response.setHeader("Access_Token", newToken);
+        return ResponseDto.setSuccess("로그아웃 완료", null);
+    }
 }

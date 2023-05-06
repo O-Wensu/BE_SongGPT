@@ -6,14 +6,21 @@ import com.team2.songgpt.entity.RefreshToken;
 import com.team2.songgpt.global.jwt.JwtUtil;
 import com.team2.songgpt.repository.MemberRepository;
 import com.team2.songgpt.repository.RefreshTokenRepository;
+import io.jsonwebtoken.JwtBuilder;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.security.Key;
+import java.util.Date;
 import java.util.Optional;
 
 @Service
@@ -92,6 +99,32 @@ public class MemberService {
 
         setHeader(response, tokenDto);
         return new LoginResponseDto(member);
+    }
+
+    @Transactional
+    public String logout(HttpServletRequest request) {
+        String token = jwtUtil.resolveToken(request, JwtUtil.ACCESS_TOKEN);
+        String userInfo;
+
+        if (token != null) {
+            if (jwtUtil.validateToken(token)) {
+                userInfo = jwtUtil.getUserInfoFromToken(token);
+                Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+                if (authentication != null && authentication.isAuthenticated() && userInfo.equals(authentication.getName())) {
+                    //만료시간이 현재 시간 이전으로 설정된 accessToken을 만들어서 클라이언트에 보냄
+                    Date now = new Date();
+                    Date expiredDate = new Date(now.getTime() - 1000);
+                    Jwts.builder().setExpiration(expiredDate);
+                    String newToken = jwtUtil.createExpiredToken(userInfo, JwtUtil.ACCESS_TOKEN, expiredDate);
+                    SecurityContextHolder.getContext().setAuthentication(null);
+                    return newToken;
+                } else {
+                throw new IllegalArgumentException("토큰이 유효하지 않습니다.");
+                }
+            }
+        }
+        throw new IllegalArgumentException("토큰이 없습니다.");
     }
 
     public void setHeader(HttpServletResponse response, TokenDto tokenDto) {

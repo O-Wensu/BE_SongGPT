@@ -57,7 +57,7 @@ public class GptService {
 
     public GptResponseDto askQuestion(QuestionRequestDto requestDto) {
         List<Messages> messages = new ArrayList<>();
-        messages.add(new Messages(requestDto.getQuestion(), "user"));
+        messages.add(new Messages(requestDto.getQuestion()+" 어울리는 노래 추천 좀 해줘", "user"));
 
         return this.getResponse(this.buildHttpEntity(new GptRequestDto(GptConfig.MODEL, messages)));
     }

@@ -15,11 +15,11 @@ public class SignupRequestDto {
     @NotBlank
     private String email;
 
-    @Size(min = 4, max = 6)
+    @Size(min = 4, max = 6, message = "{nickname.size}")
     @NotBlank
     private String nickname;
 
-    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[$@$!%*?&])[A-Za-z\\d$@$!%*?&]{8,15}$")
+    @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[$@$!%*?&()_])[A-Za-z\\d$@$!%*?&()_]{8,15}$", message = "{password.pattern}")
     @NotBlank
     private String password;
 

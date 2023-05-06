@@ -22,6 +22,9 @@ spring:
         globally_quoted_identifiers: true
   messages:
     encoding: UTF-8
+  profiles:
+    include: API-KEY
+
 logging.level:
   org.hibernate.SQL: debug
 

@@ -17,6 +17,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -59,16 +60,14 @@ public class PostService {
         Member member = getMember();
 
         List<Post> responseList = postRepository.findAll(pageable).getContent();
-        List<PostResponseDto> postResponseDtoList = responseList.stream().map(PostResponseDto::new).collect(Collectors.toList());
+        List<PostResponseDto> postResponseDtoList = new ArrayList<>();
 
-        for (int i = 0; i < responseList.size(); i++) {
-            Post post = responseList.get(i);
-            int index = i;
-            likeRepository.findByMemberIdAndPostId(member.getId(), post.getId()).ifPresent(like -> {
-                PostResponseDto responseDto = postResponseDtoList.get(index);
-                responseDto.setLikeStatus(true);
-                postResponseDtoList.add(responseDto);
-            });
+        for (Post post: responseList) {
+            PostResponseDto postResponseDto = new PostResponseDto(post);
+            if (likeRepository.findByMemberIdAndPostId(member.getId(), post.getId()).isEmpty()) {
+                postResponseDto.setLikeStatus(true);
+            }
+            postResponseDtoList.add(postResponseDto);
         }
 
         return ResponseDto.setSuccess("member: find all Post success", postResponseDtoList);

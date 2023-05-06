@@ -8,7 +8,8 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Getter @Entity
+@Getter
+@Entity
 @NoArgsConstructor
 public class RefreshToken {
 

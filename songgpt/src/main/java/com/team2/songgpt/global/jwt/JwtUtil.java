@@ -75,10 +75,10 @@ public class JwtUtil {
 
         return BEARER_PREFIX +
                 Jwts.builder()
-                        .signWith(key,signatureAlgorithm) //생성한 key 객체와 key객체를 어떤 알고리즘을 통해 암호화 할건지 지정
-                        .setSubject(email) //subject라는 키에 username 넣음
+                        .signWith(key,signatureAlgorithm)
+                        .setSubject(email)
                         .setExpiration(expiredDate)
-                        .setIssuedAt(date) //언제 토큰이 생성 되었는가
+                        .setIssuedAt(date)
                         .compact();
     }
 

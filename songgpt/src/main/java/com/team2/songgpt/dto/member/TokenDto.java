@@ -3,7 +3,8 @@ package com.team2.songgpt.dto.member;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Getter @NoArgsConstructor
+@Getter
+@NoArgsConstructor
 public class TokenDto {
     private String accessToken;
     private String refreshToken;

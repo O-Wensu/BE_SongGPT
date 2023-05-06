@@ -115,7 +115,6 @@ public class MemberService {
                     //만료시간이 현재 시간 이전으로 설정된 accessToken을 만들어서 클라이언트에 보냄
                     Date now = new Date();
                     Date expiredDate = new Date(now.getTime() - 1000);
-                    Jwts.builder().setExpiration(expiredDate);
                     String newToken = jwtUtil.createExpiredToken(userInfo, JwtUtil.ACCESS_TOKEN, expiredDate);
                     SecurityContextHolder.getContext().setAuthentication(null);
                     return newToken;

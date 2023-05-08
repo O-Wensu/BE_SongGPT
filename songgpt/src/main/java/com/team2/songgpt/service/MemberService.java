@@ -45,6 +45,9 @@ public class MemberService {
         return ResponseDto.setSuccess("Success", memberResponseDto);
     }
 
+    /**
+     * 회원가입
+     */
     @Transactional
     public ResponseDto<?> signup(@RequestBody SignupRequestDto signupRequestDto) {
         String email = signupRequestDto.getEmail();
@@ -55,12 +58,12 @@ public class MemberService {
 
         Optional<Member> findEmail = memberRepository.findByEmail(email);
         if (findEmail.isPresent()) {
-            throw new IllegalArgumentException("중복된 email입니다.");
+            throw new IllegalArgumentException("이미 등록된 회원입니다.");
         }
 
         Optional<Member> findNickname = memberRepository.findByNickname(nickname);
         if (findNickname.isPresent()) {
-            throw new IllegalArgumentException("중복된 닉네임입니다.");
+            throw new IllegalArgumentException("이미 등록된 회원입니다.");
         }
 
         Member member = new Member(email, password, nickname);
@@ -68,17 +71,20 @@ public class MemberService {
         return ResponseDto.setSuccess("Success", null);
     }
 
+    /**
+     * 로그인
+     */
     @Transactional
     public ResponseDto<LoginResponseDto> login(LoginRequestDto loginRequestDto, HttpServletResponse response) {
         String email = loginRequestDto.getEmail();
         String password = loginRequestDto.getPassword();
 
         Member member = memberRepository.findByEmail(email).orElseThrow(
-                () -> new IllegalArgumentException("잘못된 email입니다.")
+                () -> new IllegalArgumentException("등록되지 않은 회원입니다.")
         );
 
         if (!passwordEncoder.matches(password, member.getPassword())) {
-            throw new IllegalArgumentException("잘못된 비밀번호입니다.");
+            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
 
         TokenDto tokenDto = jwtUtil.createAllToken(member.getEmail());
@@ -96,6 +102,9 @@ public class MemberService {
         return ResponseDto.setSuccess("Success", loginResponseDto);
     }
 
+    /**
+     * 로그아웃
+     */
     @Transactional
     public ResponseDto<?> logout(HttpServletRequest request, HttpServletResponse response) {
         String token = jwtUtil.resolveToken(request, JwtUtil.ACCESS_TOKEN);
@@ -118,6 +127,7 @@ public class MemberService {
         throw new IllegalArgumentException("인증이 유효하지 않습니다.");
     }
 
+    //응답 헤더에 액세스, 리프레시 토큰 추가
     public void setHeader(HttpServletResponse response, TokenDto tokenDto) {
         response.addHeader(JwtUtil.ACCESS_TOKEN, tokenDto.getAccessToken());
         response.addHeader(JwtUtil.REFRESH_TOKEN, tokenDto.getRefreshToken());

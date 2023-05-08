@@ -7,7 +7,7 @@ import com.team2.songgpt.global.dto.ResponseDto;
 import com.team2.songgpt.global.jwt.JwtUtil;
 import com.team2.songgpt.repository.MemberRepository;
 import com.team2.songgpt.repository.RefreshTokenRepository;
-import io.jsonwebtoken.Jwts;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -128,7 +128,10 @@ public class MemberService {
     }
 
     @Transactional
-    public ResponseDto<TokenDto> callNewAccessToken(String refreshToken, HttpServletResponse response) {
+    public ResponseDto<?> callNewAccessToken(String refreshToken, HttpServletRequest request, HttpServletResponse response) {
+        String token = jwtUtil.resolveToken(request, JwtUtil.ACCESS_TOKEN);
+        tokenNullCheck(token);
+
         boolean isRefreshToken = jwtUtil.refreshTokenValidation(refreshToken);
         if (!isRefreshToken) {
             throw new IllegalArgumentException("토큰이 유효하지 않습니다.");
@@ -136,7 +139,17 @@ public class MemberService {
 
         String email = jwtUtil.getUserInfoFromToken(refreshToken);
         String newAccessToken = jwtUtil.createToken(email, JwtUtil.ACCESS_TOKEN);
-        response.addHeader(JwtUtil.ACCESS_TOKEN, newAccessToken);
+        jwtUtil.setHeaderAccessToken(response, newAccessToken);
+
+        String newRefreshToken = jwtUtil.createToken(email, JwtUtil.REFRESH_TOKEN);
+        newRefreshToken = newRefreshToken.substring(7);
+
+        Cookie cookie = new Cookie(JwtUtil.REFRESH_TOKEN, newRefreshToken);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
+        cookie.setPath("/");
+        response.addCookie(cookie);
+        response.setHeader("Access_Token", newAccessToken);
         return ResponseDto.setSuccess("Success", null);
     }
 

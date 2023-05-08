@@ -44,8 +44,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     String newAccessToken = jwtUtil.createToken(email, JwtUtil.ACCESS_TOKEN);
                     jwtUtil.setHeaderAccessToken(response, newAccessToken);
 
-                    // 리프레시토큰도 헤더에 httpOnly 방식으로 저장
-                    Cookie cookie = new Cookie(JwtUtil.REFRESH_TOKEN, jwtUtil.createToken(email, JwtUtil.REFRESH_TOKEN));
+                    // 쿠키에 refreshToken을 httpOnly 방식으로 저장
+                    String newRefreshToken = jwtUtil.createToken(email, JwtUtil.REFRESH_TOKEN);
+                    newRefreshToken = newRefreshToken.substring(7);
+                    Cookie cookie = new Cookie(JwtUtil.REFRESH_TOKEN, newRefreshToken);
                     cookie.setHttpOnly(true);
                     cookie.setSecure(true);
                     cookie.setPath("/");

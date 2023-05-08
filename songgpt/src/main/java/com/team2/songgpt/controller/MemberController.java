@@ -1,9 +1,6 @@
 package com.team2.songgpt.controller;
 
-import com.team2.songgpt.dto.member.LoginRequestDto;
-import com.team2.songgpt.dto.member.LoginResponseDto;
-import com.team2.songgpt.dto.member.MemberResponseDto;
-import com.team2.songgpt.dto.member.SignupRequestDto;
+import com.team2.songgpt.dto.member.*;
 import com.team2.songgpt.global.dto.ResponseDto;
 import com.team2.songgpt.service.MemberService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -39,7 +36,7 @@ public class MemberController {
     }
 
     @GetMapping("/newAccess")
-    public ResponseDto<?> callNewAccessToken(@CookieValue("Refresh_Token") String refreshToken, HttpServletResponse response) {
-        return memberService.callNewAccessToken(refreshToken, response);
+    public ResponseDto<?> callNewAccessToken(@CookieValue(value = "Refresh_Token", required = false) String refreshToken, HttpServletRequest request, HttpServletResponse response) {
+        return memberService.callNewAccessToken(refreshToken, request, response);
     }
 }

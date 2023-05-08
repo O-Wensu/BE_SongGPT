@@ -1,9 +1,6 @@
 package com.team2.songgpt.controller;
 
-import com.team2.songgpt.dto.member.LoginRequestDto;
-import com.team2.songgpt.dto.member.LoginResponseDto;
-import com.team2.songgpt.dto.member.MemberResponseDto;
-import com.team2.songgpt.dto.member.SignupRequestDto;
+import com.team2.songgpt.dto.member.*;
 import com.team2.songgpt.global.dto.ResponseDto;
 import com.team2.songgpt.service.MemberService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,27 +16,27 @@ public class MemberController {
     private final MemberService memberService;
 
     @GetMapping("/")
-    public ResponseDto getMember(HttpServletRequest request) {
-        MemberResponseDto memberResponseDto = memberService.getMember(request);
-        return ResponseDto.setSuccess("회원 정보", memberResponseDto);
+    public ResponseDto<MemberResponseDto> getMember(HttpServletRequest request) {
+        return memberService.getMember(request);
     }
 
     @PostMapping("/register")
-    public ResponseDto signup(@Valid @RequestBody SignupRequestDto signupRequestDto) {
-        memberService.signup(signupRequestDto);
-        return ResponseDto.setSuccess("회원가입 완료", null);
+    public ResponseDto<?> signup(@Valid @RequestBody SignupRequestDto signupRequestDto) {
+        return memberService.signup(signupRequestDto);
     }
 
     @PostMapping("/login")
-    public ResponseDto login(@RequestBody LoginRequestDto loginRequestDto, HttpServletResponse response) {
-        LoginResponseDto loginResponseDto = memberService.login(loginRequestDto, response);
-        return ResponseDto.setSuccess("로그인 완료", loginResponseDto);
+    public ResponseDto<LoginResponseDto> login(@RequestBody LoginRequestDto loginRequestDto, HttpServletResponse response) {
+        return memberService.login(loginRequestDto, response);
     }
 
     @PostMapping("/logout")
-    public ResponseDto logout(HttpServletRequest request, HttpServletResponse response) {
-        String newToken = memberService.logout(request);
-        response.setHeader("Access_Token", newToken);
-        return ResponseDto.setSuccess("로그아웃 완료", null);
+    public ResponseDto<?> logout(HttpServletRequest request, HttpServletResponse response) {
+        return memberService.logout(request, response);
+    }
+
+    @GetMapping("/newAccess")
+    public ResponseDto<?> callNewAccessToken(@CookieValue(value = "Refresh_Token", required = false) String refreshToken, HttpServletRequest request, HttpServletResponse response) {
+        return memberService.callNewAccessToken(refreshToken, request, response);
     }
 }

@@ -33,7 +33,7 @@ public class JwtUtil {
     public static final String ACCESS_TOKEN = "Access_Token";
     public static final String REFRESH_TOKEN = "Refresh_Token";
     private static final long ACCESS_TIME = 60 * 60 * 1000L; //1시간
-    private static final long REFRESH_TIME = (60 * 1000L) * 60 * 24 * 7; //7일
+    public static final long REFRESH_TIME = (60 * 1000L) * 60 * 24 * 7; //7일
     private static final String BEARER_PREFIX = "Bearer ";
     private final UserDetailsServiceImpl userDetailsService;
     private final RefreshTokenRepository refreshTokenRepository;
@@ -63,7 +63,7 @@ public class JwtUtil {
         //String 형식의 jwt토큰으로 반환됨
         return BEARER_PREFIX +
                 Jwts.builder()
-                        .signWith(key, signatureAlgorithm) //생성한 key 객체와 key객체를 어떤 알고리즘을 통해 암호화 할건지 지정
+                        .signWith(key,signatureAlgorithm) //생성한 key 객체와 key객체를 어떤 알고리즘을 통해 암호화 할건지 지정
                         .setSubject(email) //subject라는 키에 username 넣음
                         .setExpiration(new Date(date.getTime() + time))
                         .setIssuedAt(date) //언제 토큰이 생성 되었는가
@@ -75,10 +75,10 @@ public class JwtUtil {
 
         return BEARER_PREFIX +
                 Jwts.builder()
-                        .signWith(key, signatureAlgorithm) //생성한 key 객체와 key객체를 어떤 알고리즘을 통해 암호화 할건지 지정
-                        .setSubject(email) //subject라는 키에 username 넣음
+                        .signWith(key,signatureAlgorithm)
+                        .setSubject(email)
                         .setExpiration(expiredDate)
-                        .setIssuedAt(date) //언제 토큰이 생성 되었는가
+                        .setIssuedAt(date)
                         .compact();
     }
 
@@ -106,7 +106,8 @@ public class JwtUtil {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;
-        } catch (SecurityException | MalformedJwtException e) {
+        }
+        catch (SecurityException | MalformedJwtException e) {
             log.info("Invalid JWT signature, 유효하지 않는 JWT 서명 입니다.");
         } catch (ExpiredJwtException e) {
             log.info("Expired JWT token, 만료된 JWT token 입니다.");
@@ -120,10 +121,10 @@ public class JwtUtil {
 
     // RefreshToken 검증 : DB에 저장돼 있는 토큰과 비교
     public Boolean refreshTokenValidation(String token) {
-        if (!validateToken(token)) return false;
+        if(!validateToken(token)) return false;
 
         Optional<RefreshToken> refreshToken = refreshTokenRepository.findByEmail(getUserInfoFromToken(token));
-        return refreshToken.isPresent() && token.equals(refreshToken.get().getRefreshToken().substring(7));
+                return refreshToken.isPresent() && token.equals(refreshToken.get().getRefreshToken().substring(7));
     }
 
     // 토큰에서 사용자 정보 가져오기

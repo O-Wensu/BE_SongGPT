@@ -7,7 +7,7 @@ import com.team2.songgpt.global.dto.ResponseDto;
 import com.team2.songgpt.global.jwt.JwtUtil;
 import com.team2.songgpt.repository.MemberRepository;
 import com.team2.songgpt.repository.RefreshTokenRepository;
-import io.jsonwebtoken.Jwts;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -31,29 +31,25 @@ public class MemberService {
     private final RefreshTokenRepository refreshTokenRepository;
 
     @Transactional
-    public MemberResponseDto getMember(HttpServletRequest request) {
+    public ResponseDto<MemberResponseDto> getMember(HttpServletRequest request) {
         String token = jwtUtil.resolveToken(request, JwtUtil.ACCESS_TOKEN);
-        String userInfo;
 
-        if (token != null) {
-            if (jwtUtil.validateToken(token)) {
-                userInfo = jwtUtil.getUserInfoFromToken(token);
-                Member member = memberRepository.findByEmail(userInfo).orElseThrow(
-                        () -> new IllegalArgumentException("토큰이 유효하지 않습니다.")
-                );
-                return new MemberResponseDto(member);
-            } else {
-                throw new IllegalArgumentException("토큰이 유효하지 않습니다.");
-            }
-        }
-        throw new IllegalArgumentException("토큰이 없습니다.");
+        tokenNullCheck(token);
+        tokenValidateCheck(token);
+
+        String userInfo = jwtUtil.getUserInfoFromToken(token);
+        Member member = memberRepository.findByEmail(userInfo).orElseThrow(
+                () -> new IllegalArgumentException("토큰이 유효하지 않습니다.")
+        );
+        MemberResponseDto memberResponseDto = new MemberResponseDto(member);
+        return ResponseDto.setSuccess("Success", memberResponseDto);
     }
 
     /**
      * 회원가입
      */
     @Transactional
-    public void signup(@RequestBody SignupRequestDto signupRequestDto) {
+    public ResponseDto<?> signup(@RequestBody SignupRequestDto signupRequestDto) {
         String email = signupRequestDto.getEmail();
         String password = signupRequestDto.getPassword();
         String nickname = signupRequestDto.getNickname();
@@ -62,32 +58,33 @@ public class MemberService {
 
         Optional<Member> findEmail = memberRepository.findByEmail(email);
         if (findEmail.isPresent()) {
-            throw new IllegalArgumentException("중복된 email입니다.");
+            throw new IllegalArgumentException("이미 등록된 회원입니다.");
         }
 
         Optional<Member> findNickname = memberRepository.findByNickname(nickname);
         if (findNickname.isPresent()) {
-            throw new IllegalArgumentException("중복된 닉네임입니다.");
+            throw new IllegalArgumentException("이미 등록된 회원입니다.");
         }
 
         Member member = new Member(email, password, nickname);
         memberRepository.save(member);
+        return ResponseDto.setSuccess("Success", null);
     }
 
     /**
      * 로그인
      */
     @Transactional
-    public LoginResponseDto login(LoginRequestDto loginRequestDto, HttpServletResponse response) {
+    public ResponseDto<LoginResponseDto> login(LoginRequestDto loginRequestDto, HttpServletResponse response) {
         String email = loginRequestDto.getEmail();
         String password = loginRequestDto.getPassword();
 
         Member member = memberRepository.findByEmail(email).orElseThrow(
-                () -> new IllegalArgumentException("잘못된 email입니다.")
+                () -> new IllegalArgumentException("등록되지 않은 회원입니다.")
         );
 
         if (!passwordEncoder.matches(password, member.getPassword())) {
-            throw new IllegalArgumentException("잘못된 비밀번호입니다.");
+            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
 
         TokenDto tokenDto = jwtUtil.createAllToken(member.getEmail());
@@ -101,41 +98,79 @@ public class MemberService {
         }
 
         setHeader(response, tokenDto);
-        return new LoginResponseDto(member);
+        LoginResponseDto loginResponseDto = new LoginResponseDto(member);
+        return ResponseDto.setSuccess("Success", loginResponseDto);
     }
 
     /**
      * 로그아웃
      */
     @Transactional
-    public String logout(HttpServletRequest request) {
+    public ResponseDto<?> logout(HttpServletRequest request, HttpServletResponse response) {
         String token = jwtUtil.resolveToken(request, JwtUtil.ACCESS_TOKEN);
-        String userInfo;
 
-        if (token != null) {
-            if (jwtUtil.validateToken(token)) {
-                userInfo = jwtUtil.getUserInfoFromToken(token);
-                Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        tokenNullCheck(token);
+        tokenValidateCheck(token);
 
-                if (authentication != null && authentication.isAuthenticated() && userInfo.equals(authentication.getName())) {
-                    //만료시간이 현재 시간 이전으로 설정된 accessToken을 만들어서 클라이언트에 보냄
-                    Date now = new Date();
-                    Date expiredDate = new Date(now.getTime() - 1000);
-                    Jwts.builder().setExpiration(expiredDate);
-                    String newToken = jwtUtil.createExpiredToken(userInfo, JwtUtil.ACCESS_TOKEN, expiredDate);
-                    SecurityContextHolder.getContext().setAuthentication(null);
-                    return newToken;
-                } else {
-                    throw new IllegalArgumentException("토큰이 유효하지 않습니다.");
-                }
-            }
+        String userInfo = jwtUtil.getUserInfoFromToken(token);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication != null && authentication.isAuthenticated() && userInfo.equals(authentication.getName())) {
+            //만료시간이 현재 시간 이전으로 설정된 accessToken을 만들어서 클라이언트에 보냄
+            Date now = new Date();
+            Date expiredDate = new Date(now.getTime() - 1000);
+            String newToken = jwtUtil.createExpiredToken(userInfo, JwtUtil.ACCESS_TOKEN, expiredDate);
+            SecurityContextHolder.getContext().setAuthentication(null);
+            response.setHeader("Access_Token", newToken);
+            return ResponseDto.setSuccess("Success", null);
         }
-        throw new IllegalArgumentException("토큰이 없습니다.");
+        throw new IllegalArgumentException("인증이 유효하지 않습니다.");
+    }
+
+    /**
+     * 로그아웃
+     */
+    @Transactional
+    public ResponseDto<?> callNewAccessToken(String refreshToken, HttpServletRequest request, HttpServletResponse response) {
+        String token = jwtUtil.resolveToken(request, JwtUtil.ACCESS_TOKEN);
+        tokenNullCheck(token);
+
+        boolean isRefreshToken = jwtUtil.refreshTokenValidation(refreshToken);
+        if (!isRefreshToken) {
+            throw new IllegalArgumentException("토큰이 유효하지 않습니다.");
+        }
+
+        String email = jwtUtil.getUserInfoFromToken(refreshToken);
+        String newAccessToken = jwtUtil.createToken(email, JwtUtil.ACCESS_TOKEN);
+        jwtUtil.setHeaderAccessToken(response, newAccessToken);
+
+        String newRefreshToken = jwtUtil.createToken(email, JwtUtil.REFRESH_TOKEN);
+        newRefreshToken = newRefreshToken.substring(7);
+
+        Cookie cookie = new Cookie(JwtUtil.REFRESH_TOKEN, newRefreshToken);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
+        cookie.setPath("/");
+        response.addCookie(cookie);
+        response.setHeader("Access_Token", newAccessToken);
+        return ResponseDto.setSuccess("Success", null);
     }
 
     //응답 헤더에 액세스, 리프레시 토큰 추가
     public void setHeader(HttpServletResponse response, TokenDto tokenDto) {
         response.addHeader(JwtUtil.ACCESS_TOKEN, tokenDto.getAccessToken());
         response.addHeader(JwtUtil.REFRESH_TOKEN, tokenDto.getRefreshToken());
+    }
+
+    private void tokenNullCheck(String token) {
+        if (token == null) {
+            throw new NullPointerException("토큰이 없습니다.");
+        }
+    }
+
+    private void tokenValidateCheck(String token) {
+        if (!jwtUtil.validateToken(token)) {
+            throw new IllegalArgumentException("토큰이 유효하지 않습니다.");
+        }
     }
 }

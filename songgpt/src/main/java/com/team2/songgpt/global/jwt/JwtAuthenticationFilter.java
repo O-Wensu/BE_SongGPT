@@ -5,6 +5,7 @@ import com.team2.songgpt.global.dto.SecurityExceptionDto;
 import com.team2.songgpt.global.entity.StatusCode;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +43,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     String email = jwtUtil.getUserInfoFromToken(refresh_token);
                     String newAccessToken = jwtUtil.createToken(email, JwtUtil.ACCESS_TOKEN);
                     jwtUtil.setHeaderAccessToken(response, newAccessToken);
+
+                    // 쿠키에 refreshToken을 httpOnly 방식으로 저장
+                    String newRefreshToken = jwtUtil.createToken(email, JwtUtil.REFRESH_TOKEN);
+                    newRefreshToken = newRefreshToken.substring(7);
+                    Cookie cookie = new Cookie(JwtUtil.REFRESH_TOKEN, newRefreshToken);
+                    cookie.setHttpOnly(true);
+                    cookie.setSecure(true);
+                    cookie.setPath("/");
+                    response.addCookie(cookie);
                     setAuthentication(email);
                 } else {
                     jwtExceptionHandler(response, "Refresh 토큰이 유효하지 않습니다.");

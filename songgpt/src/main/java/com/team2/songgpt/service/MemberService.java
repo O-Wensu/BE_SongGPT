@@ -127,6 +127,9 @@ public class MemberService {
         throw new IllegalArgumentException("인증이 유효하지 않습니다.");
     }
 
+    /**
+     * 로그아웃
+     */
     @Transactional
     public ResponseDto<?> callNewAccessToken(String refreshToken, HttpServletRequest request, HttpServletResponse response) {
         String token = jwtUtil.resolveToken(request, JwtUtil.ACCESS_TOKEN);

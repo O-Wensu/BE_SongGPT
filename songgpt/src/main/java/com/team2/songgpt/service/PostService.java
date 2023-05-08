@@ -36,7 +36,7 @@ public class PostService {
     public ResponseDto<?> savePost(PostRequestDto postRequestDto, Member member) {
         Post post = new Post(postRequestDto, member);
         Long postId = postRepository.save(post).getId();
-        return ResponseDto.setSuccess("post create success", postId);
+        return ResponseDto.setSuccess(postId);
     }
 
     /**
@@ -47,7 +47,7 @@ public class PostService {
         Post post = ValidateExistPost(id);
         validatePostAuthor(member, post);
         postRepository.delete(post);
-        return ResponseDto.setSuccess("post delete success", null);
+        return ResponseDto.setSuccess(null);
     }
 
     /**
@@ -68,7 +68,7 @@ public class PostService {
             postResponseDtoList.add(postResponseDto);
         }
 
-        return ResponseDto.setSuccess("member: find all Post success", postResponseDtoList);
+        return ResponseDto.setSuccess("member: success", postResponseDtoList);
     }
 
     /**
@@ -78,7 +78,7 @@ public class PostService {
     public ResponseDto<List<PostResponseDto>> getAllPostByAnonymous(Pageable pageable) {
         List<PostResponseDto> postResponseDtos = postRepository.findAll(pageable).getContent().stream().map(PostResponseDto::new).collect(Collectors.toList());
 
-        return ResponseDto.setSuccess("anonymous: find all Post success", postResponseDtos);
+        return ResponseDto.setSuccess("anonymous: success", postResponseDtos);
     }
 
     /**
@@ -95,7 +95,7 @@ public class PostService {
             responseDto.setLikeStatus(true);
         });
 
-        return ResponseDto.setSuccess("member: post create success", responseDto);
+        return ResponseDto.setSuccess("member: success", responseDto);
     }
 
     /**
@@ -106,7 +106,7 @@ public class PostService {
         Post post = ValidateExistPost(id);
         PostResponseDto postResponseDto = new PostResponseDto(post);
 
-        return ResponseDto.setSuccess("anonymous: post create success", postResponseDto);
+        return ResponseDto.setSuccess("anonymous: success", postResponseDto);
     }
 
     private Member getMember() {

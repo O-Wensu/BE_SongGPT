@@ -3,6 +3,7 @@ package com.team2.songgpt.service;
 import com.team2.songgpt.dto.member.*;
 import com.team2.songgpt.entity.Member;
 import com.team2.songgpt.entity.RefreshToken;
+import com.team2.songgpt.global.dto.ResponseDto;
 import com.team2.songgpt.global.jwt.JwtUtil;
 import com.team2.songgpt.repository.MemberRepository;
 import com.team2.songgpt.repository.RefreshTokenRepository;
@@ -29,28 +30,23 @@ public class MemberService {
     private final PasswordEncoder passwordEncoder;
     private final RefreshTokenRepository refreshTokenRepository;
 
-
     @Transactional
-    public MemberResponseDto getMember(HttpServletRequest request) {
+    public ResponseDto<MemberResponseDto> getMember(HttpServletRequest request) {
         String token = jwtUtil.resolveToken(request, JwtUtil.ACCESS_TOKEN);
-        String userInfo;
 
-        if (token != null) {
-            if (jwtUtil.validateToken(token)) {
-                userInfo = jwtUtil.getUserInfoFromToken(token);
-                Member member = memberRepository.findByEmail(userInfo).orElseThrow(
-                        () -> new IllegalArgumentException("토큰이 유효하지 않습니다.")
-                );
-                return new MemberResponseDto(member);
-            } else {
-                throw new IllegalArgumentException("토큰이 유효하지 않습니다.");
-            }
-        }
-        throw new IllegalArgumentException("토큰이 없습니다.");
+        tokenNullCheck(token);
+        tokenValidateCheck(token);
+
+        String userInfo = jwtUtil.getUserInfoFromToken(token);
+        Member member = memberRepository.findByEmail(userInfo).orElseThrow(
+                () -> new IllegalArgumentException("토큰이 유효하지 않습니다.")
+        );
+        MemberResponseDto memberResponseDto = new MemberResponseDto(member);
+        return ResponseDto.setSuccess("Success", memberResponseDto);
     }
 
     @Transactional
-    public void signup(@RequestBody SignupRequestDto signupRequestDto) {
+    public ResponseDto<?> signup(@RequestBody SignupRequestDto signupRequestDto) {
         String email = signupRequestDto.getEmail();
         String password = signupRequestDto.getPassword();
         String nickname = signupRequestDto.getNickname();
@@ -69,10 +65,11 @@ public class MemberService {
 
         Member member = new Member(email, password, nickname);
         memberRepository.save(member);
+        return ResponseDto.setSuccess("Success", null);
     }
 
     @Transactional
-    public LoginResponseDto login(LoginRequestDto loginRequestDto, HttpServletResponse response) {
+    public ResponseDto<LoginResponseDto> login(LoginRequestDto loginRequestDto, HttpServletResponse response) {
         String email = loginRequestDto.getEmail();
         String password = loginRequestDto.getPassword();
 
@@ -95,36 +92,46 @@ public class MemberService {
         }
 
         setHeader(response, tokenDto);
-        return new LoginResponseDto(member);
+        LoginResponseDto loginResponseDto = new LoginResponseDto(member);
+        return ResponseDto.setSuccess("Success", loginResponseDto);
     }
 
     @Transactional
-    public String logout(HttpServletRequest request) {
+    public ResponseDto<?> logout(HttpServletRequest request, HttpServletResponse response) {
         String token = jwtUtil.resolveToken(request, JwtUtil.ACCESS_TOKEN);
-        String userInfo;
 
-        if (token != null) {
-            if (jwtUtil.validateToken(token)) {
-                userInfo = jwtUtil.getUserInfoFromToken(token);
-                Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        tokenNullCheck(token);
+        tokenValidateCheck(token);
 
-                if (authentication != null && authentication.isAuthenticated() && userInfo.equals(authentication.getName())) {
-                    //만료시간이 현재 시간 이전으로 설정된 accessToken을 만들어서 클라이언트에 보냄
-                    Date now = new Date();
-                    Date expiredDate = new Date(now.getTime() - 1000);
-                    String newToken = jwtUtil.createExpiredToken(userInfo, JwtUtil.ACCESS_TOKEN, expiredDate);
-                    SecurityContextHolder.getContext().setAuthentication(null);
-                    return newToken;
-                } else {
-                    throw new IllegalArgumentException("토큰이 유효하지 않습니다.");
-                }
-            }
+        String userInfo = jwtUtil.getUserInfoFromToken(token);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication != null && authentication.isAuthenticated() && userInfo.equals(authentication.getName())) {
+            //만료시간이 현재 시간 이전으로 설정된 accessToken을 만들어서 클라이언트에 보냄
+            Date now = new Date();
+            Date expiredDate = new Date(now.getTime() - 1000);
+            String newToken = jwtUtil.createExpiredToken(userInfo, JwtUtil.ACCESS_TOKEN, expiredDate);
+            SecurityContextHolder.getContext().setAuthentication(null);
+            response.setHeader("Access_Token", newToken);
+            return ResponseDto.setSuccess("Success", null);
         }
-        throw new IllegalArgumentException("토큰이 없습니다.");
+        throw new IllegalArgumentException("인증이 유효하지 않습니다.");
     }
 
     public void setHeader(HttpServletResponse response, TokenDto tokenDto) {
         response.addHeader(JwtUtil.ACCESS_TOKEN, tokenDto.getAccessToken());
         response.addHeader(JwtUtil.REFRESH_TOKEN, tokenDto.getRefreshToken());
+    }
+
+    private void tokenNullCheck(String token) {
+        if (token == null) {
+            throw new NullPointerException("토큰이 없습니다.");
+        }
+    }
+
+    private void tokenValidateCheck(String token) {
+        if (!jwtUtil.validateToken(token)) {
+            throw new IllegalArgumentException("토큰이 유효하지 않습니다.");
+        }
     }
 }

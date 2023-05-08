@@ -6,7 +6,7 @@ public enum GenreEnum {
     BALLAD("ballad"),
     HIPHOP("hiphop"),
     CLASSIC("classic"),
-    Nature("nature");
+    NATURE("nature");
 
     private String genre;
 

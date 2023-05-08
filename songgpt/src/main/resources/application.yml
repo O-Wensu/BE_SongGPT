@@ -2,19 +2,13 @@ spring:
   profiles:
     include: API-KEY, secret
   jpa:
-    hibernate:
-      ddl-auto: create
+    database-platform: org.hibernate.dialect.MariaDB103Dialect
     properties:
       hibernate:
         globally_quoted_identifiers: 'true'
         format_sql: true
-  h2:
-    console:
-      enabled: 'true'
   messages:
     encoding: UTF-8
 
 logging.level:
   org.hibernate.SQL: debug
-
-

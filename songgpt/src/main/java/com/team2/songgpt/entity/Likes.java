@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 public class Likes {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "likes_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -27,7 +28,6 @@ public class Likes {
 
 
     public Likes(Member member, Post post) {
-        log.info("좋아요욧!!");
         this.post = post;
         this.member = member;
         post.getLikes().add(this);

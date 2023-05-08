@@ -127,6 +127,19 @@ public class MemberService {
         throw new IllegalArgumentException("인증이 유효하지 않습니다.");
     }
 
+    @Transactional
+    public ResponseDto<TokenDto> callNewAccessToken(String refreshToken, HttpServletResponse response) {
+        boolean isRefreshToken = jwtUtil.refreshTokenValidation(refreshToken);
+        if (!isRefreshToken) {
+            throw new IllegalArgumentException("토큰이 유효하지 않습니다.");
+        }
+
+        String email = jwtUtil.getUserInfoFromToken(refreshToken);
+        String newAccessToken = jwtUtil.createToken(email, JwtUtil.ACCESS_TOKEN);
+        response.addHeader(JwtUtil.ACCESS_TOKEN, newAccessToken);
+        return ResponseDto.setSuccess("Success", null);
+    }
+
     //응답 헤더에 액세스, 리프레시 토큰 추가
     public void setHeader(HttpServletResponse response, TokenDto tokenDto) {
         response.addHeader(JwtUtil.ACCESS_TOKEN, tokenDto.getAccessToken());

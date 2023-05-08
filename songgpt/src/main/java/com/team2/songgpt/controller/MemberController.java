@@ -37,4 +37,9 @@ public class MemberController {
     public ResponseDto<?> logout(HttpServletRequest request, HttpServletResponse response) {
         return memberService.logout(request, response);
     }
+
+    @GetMapping("/newAccess")
+    public ResponseDto<?> callNewAccessToken(@CookieValue("Refresh_Token") String refreshToken, HttpServletResponse response) {
+        return memberService.callNewAccessToken(refreshToken, response);
+    }
 }

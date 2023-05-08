@@ -47,6 +47,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     // 리프레시토큰도 헤더에 httpOnly 방식으로 저장
                     Cookie cookie = new Cookie(JwtUtil.REFRESH_TOKEN, jwtUtil.createToken(email, JwtUtil.REFRESH_TOKEN));
                     cookie.setHttpOnly(true);
+                    cookie.setSecure(true);
                     cookie.setPath("/");
                     response.addCookie(cookie);
                     setAuthentication(email);

@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.team2.songgpt.dto.post.PostResponseDto.AllPostResponseDto;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,18 +55,18 @@ public class PostService {
      * 회원
      * 전체 게시글 조회
      */
-    public ResponseDto<List<PostResponseDto>> getAllPostByMember(Pageable pageable) {
+    public ResponseDto<List<AllPostResponseDto>> getAllPostByMember(Pageable pageable) {
         Member member = getMember();
 
         List<Post> responseList = postRepository.findAll(pageable).getContent();
-        List<PostResponseDto> postResponseDtoList = new ArrayList<>();
+        List<AllPostResponseDto> postResponseDtoList = new ArrayList<>();
 
         for (Post post : responseList) {
-            PostResponseDto postResponseDto = new PostResponseDto(post);
+            AllPostResponseDto allpostResponseDto = new AllPostResponseDto(post);
             if (likeRepository.findByMemberIdAndPostId(member.getId(), post.getId()).isPresent()) {
-                postResponseDto.setLikeStatus(true);
+                allpostResponseDto.setLikeStatus(true);
             }
-            postResponseDtoList.add(postResponseDto);
+            postResponseDtoList.add(allpostResponseDto);
         }
 
         return ResponseDto.setSuccess("member: success", postResponseDtoList);
@@ -75,8 +76,8 @@ public class PostService {
      * 비회원
      * 전체 게시글 조회
      */
-    public ResponseDto<List<PostResponseDto>> getAllPostByAnonymous(Pageable pageable) {
-        List<PostResponseDto> postResponseDtos = postRepository.findAll(pageable).getContent().stream().map(PostResponseDto::new).collect(Collectors.toList());
+    public ResponseDto<List<AllPostResponseDto>> getAllPostByAnonymous(Pageable pageable) {
+        List<AllPostResponseDto> postResponseDtos = postRepository.findAll(pageable).getContent().stream().map(AllPostResponseDto::new).collect(Collectors.toList());
 
         return ResponseDto.setSuccess("anonymous: success", postResponseDtos);
     }

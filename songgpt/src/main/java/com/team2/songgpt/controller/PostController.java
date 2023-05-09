@@ -12,6 +12,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import com.team2.songgpt.dto.post.PostResponseDto.AllPostResponseDto;
 
 import java.util.List;
 
@@ -23,7 +24,7 @@ public class PostController {
 
     // /board?page=0&size=4&sort=createdAt,DESC 요청으로 조회
     @GetMapping("/board")
-    public ResponseDto<List<PostResponseDto>> getPosts(Pageable pageable) {
+    public ResponseDto<List<AllPostResponseDto>> getPosts(Pageable pageable) {
         if (!isAuthenticated()) {
             return postService.getAllPostByAnonymous(pageable);
         }

@@ -42,5 +42,16 @@ public class PostResponseDto {
     public void setLikeStatus(boolean status) {
         this.likeStatus = status;
     }
-}
 
+    @Getter
+    public static class AllPostResponseDto extends PostResponseDto {
+        private String startPoint;
+        private String endPoint;
+
+        public AllPostResponseDto(Post post) {
+            super(post);
+            this.startPoint = post.getStartPoint();
+            this.endPoint = post.getEndPoint();
+        }
+    }
+}

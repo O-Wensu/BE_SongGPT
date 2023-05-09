@@ -1,17 +1,14 @@
 spring:
+  datasource:
+    driver-class-name: org.mariadb.jdbc.Driver
   jpa:
     properties:
       hibernate:
         globally_quoted_identifiers: 'true'
-  h2:
-    console:
-      enabled: 'true'
-  datasource:
-    username: sa
-    url: jdbc:h2:mem:db;MODE=MYSQL
-    password: ''
+    hibernate:
+      ddl-auto: create
   profiles:
-    include: API-KEY
+    include: API-KEY, secret
   messages:
     encoding: UTF-8
 

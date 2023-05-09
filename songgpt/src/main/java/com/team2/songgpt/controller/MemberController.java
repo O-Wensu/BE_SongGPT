@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 public class MemberController {
     private final MemberService memberService;
 
-    @GetMapping("/")
+    @GetMapping
     public ResponseDto<MemberResponseDto> getMember(HttpServletRequest request) {
         return memberService.getMember(request);
     }

@@ -30,17 +30,18 @@ public class MemberService {
     private final PasswordEncoder passwordEncoder;
     private final RefreshTokenRepository refreshTokenRepository;
 
+    /**
+     * 회원 정보
+     */
     @Transactional
     public ResponseDto<MemberResponseDto> getMember(HttpServletRequest request) {
         String token = jwtUtil.resolveToken(request, JwtUtil.ACCESS_TOKEN);
 
+        //유효성 검사
         tokenNullCheck(token);
         tokenValidateCheck(token);
+        Member member = findMemberByToken(token);
 
-        String userInfo = jwtUtil.getUserInfoFromToken(token);
-        Member member = memberRepository.findByEmail(userInfo).orElseThrow(
-                () -> new IllegalArgumentException("토큰이 유효하지 않습니다.")
-        );
         MemberResponseDto memberResponseDto = new MemberResponseDto(member);
         return ResponseDto.setSuccess("Success", memberResponseDto);
     }
@@ -56,20 +57,15 @@ public class MemberService {
 
         password = passwordEncoder.encode(password);
 
-        Optional<Member> findEmail = memberRepository.findByEmail(email);
-        if (findEmail.isPresent()) {
-            throw new IllegalArgumentException("이미 등록된 회원입니다.");
-        }
-
-        Optional<Member> findNickname = memberRepository.findByNickname(nickname);
-        if (findNickname.isPresent()) {
-            throw new IllegalArgumentException("이미 등록된 회원입니다.");
-        }
+        //유효성 검사
+        validateMemberByEmail(email);
+        validateMemberByNickname(nickname);
 
         Member member = new Member(email, password, nickname);
         memberRepository.save(member);
         return ResponseDto.setSuccess("Success", null);
     }
+
 
     /**
      * 로그인
@@ -79,13 +75,9 @@ public class MemberService {
         String email = loginRequestDto.getEmail();
         String password = loginRequestDto.getPassword();
 
-        Member member = memberRepository.findByEmail(email).orElseThrow(
-                () -> new IllegalArgumentException("등록되지 않은 회원입니다.")
-        );
-
-        if (!passwordEncoder.matches(password, member.getPassword())) {
-            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
-        }
+        //유효성 검사
+        Member member = validateMember(email);
+        validatePassword(password, member);
 
         TokenDto tokenDto = jwtUtil.createAllToken(member.getEmail());
         Optional<RefreshToken> refreshToken = refreshTokenRepository.findByEmail(member.getEmail());
@@ -171,6 +163,37 @@ public class MemberService {
     private void tokenValidateCheck(String token) {
         if (!jwtUtil.validateToken(token)) {
             throw new IllegalArgumentException("토큰이 유효하지 않습니다.");
+        }
+    }
+
+    private Member findMemberByToken(String token) {
+        String userInfo = jwtUtil.getUserInfoFromToken(token);
+        return memberRepository.findByEmail(userInfo).orElseThrow(
+                () -> new IllegalArgumentException("토큰이 유효하지 않습니다.")
+        );
+    }
+
+    private void validateMemberByEmail(String email) {
+        memberRepository.findByEmail(email).ifPresent(member -> {
+            throw new IllegalArgumentException("이미 등록된 회원입니다.");
+        });
+    }
+
+    private void validateMemberByNickname(String nickname) {
+        memberRepository.findByNickname(nickname).ifPresent(member -> {
+            throw new IllegalArgumentException("중복된 닉네임입니다.");
+        });
+    }
+
+    private Member validateMember(String email) {
+        return memberRepository.findByEmail(email).orElseThrow(
+                () -> new IllegalArgumentException("등록되지 않은 회원입니다.")
+        );
+    }
+
+    private void validatePassword(String password, Member member) {
+        if (!passwordEncoder.matches(password, member.getPassword())) {
+            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
     }
 }

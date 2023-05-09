@@ -50,11 +50,13 @@ jobs:
       uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
       with:
         gradle-version: 7.5.1
-        arguments: clean build
+        arguments: build
       
       # 디렉토리 생성
     - name: Make Directory
       run: mkdir -p deploy
+    - name: Make Directory
+      run: mkdir -p ./build/libs
         
       # Jar 파일 복사
     - name: Copy Jar

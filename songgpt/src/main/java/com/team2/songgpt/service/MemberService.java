@@ -172,7 +172,11 @@ public class MemberService {
     public ResponseDto<?> updateProfile(MultipartFile image, Member member) {
         //중복된 이름 방지를 위한 UUID 붙이기
         String fileName = UUID.randomUUID() + "-" + image.getOriginalFilename();
+
+        //메타 데이터 설정
         ObjectMetadata objMeta = new ObjectMetadata();
+        objMeta.setContentType(image.getContentType());
+        objMeta.setContentLength(image.getSize());
 
         try {
             objMeta.setContentLength(image.getInputStream().available());

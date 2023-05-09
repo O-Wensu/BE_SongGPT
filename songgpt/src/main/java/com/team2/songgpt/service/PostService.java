@@ -34,7 +34,7 @@ public class PostService {
      * 게시글 저장
      */
     @Transactional
-    public ResponseDto<?> savePost(PostRequestDto postRequestDto, Member member) {
+    public ResponseDto<Long> savePost(PostRequestDto postRequestDto, Member member) {
         Post post = new Post(postRequestDto, member);
         Long postId = postRepository.save(post).getId();
         return ResponseDto.setSuccess(postId);

@@ -40,6 +40,12 @@ public class Post extends TimeStamped {
     @Enumerated(EnumType.STRING)
     private GenreEnum genreTag;
 
+    @Column(nullable = false)
+    private String startPoint;
+    @Column(nullable = false)
+    private String endPoint;
+
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
@@ -60,6 +66,8 @@ public class Post extends TimeStamped {
         this.feelTag = postRequestDto.getFeelTag();
         this.weatherTag = postRequestDto.getWeatherTag();
         this.genreTag = postRequestDto.getGenreTag();
+        this.startPoint = postRequestDto.getStartPoint();
+        this.endPoint = postRequestDto.getEndPoint();
         this.likes = new ArrayList<>();
     }
 

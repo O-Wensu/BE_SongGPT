@@ -58,6 +58,7 @@ public class GptService {
 
         return responseEntity.getBody();
     }
+
     public TextGptResponseDto getTextResponse(HttpEntity<TextGptRequestDto> chatGptRequestDtoHttpEntity) {
         ResponseEntity<TextGptResponseDto> responseEntity = restTemplate.postForEntity(
                 GptConfig.TEXT_URL,
@@ -73,7 +74,7 @@ public class GptService {
         GptConfig.setMODEL(GptConfig.CHAT_MODEL);
 
         List<Messages> messages = new ArrayList<>();
-        messages.add(new Messages(requestDto.getQuestion()+" 어울리는 노래 추천 좀 해줘", "user"));
+        messages.add(new Messages(requestDto.getQuestion()+" \n" +" 어울리는 노래 5개 추천 좀 해줘.", "user")); //어울리는 노래 추천 좀 해줘 recommend 5 songs
         GptResponseDto gptResponseDto = this.getResponse(this.buildHttpEntity(new GptRequestDto(GptConfig.MODEL, messages)));
         List<Choice> choices = gptResponseDto.getChoices();
         StringBuilder answer = new StringBuilder();
@@ -93,7 +94,7 @@ public class GptService {
                         GptConfig.TEMPERATURE,
                         GptConfig.MAX_TOKEN,
                         requestDto.getQuestion()+" \n" +
-                                "recommend some songs.",
+                                "어울리는 노래 5개 추천 좀 해줘.",
                         GptConfig.MODEL)));
         List<TextChoice> choices = gptResponseDto.getChoices();
         StringBuilder answer = new StringBuilder();

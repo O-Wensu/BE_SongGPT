@@ -28,5 +28,21 @@ jobs:
       with:
         java-version: '17'
         distribution: 'temurin'
+    - name: Create Secret yml
+      env:
+        APPLICATION_SECRET: ${{ secrets.APPLICATION_SECRET }}
+        APPLICATION_SECRET_DIR: src/main/resources
+        APPLICATION_SECRET_TEST_DIR: src/test/resources
+        APPLICATION_SECRET_DIR_FILE_NAME: application-secret.yml
+      run: echo $APPLICATION_SECRET | base64 --decode > $APPLICATION_SECRET_DIR/$APPLICATION_SECRET_DIR_FILE_NAME && 
+           echo $APPLICATION_SECRET | base64 --decode > $APPLICATION_SECRET_TEST_DIR/$APPLICATION_SECRET_DIR_FILE_NAME
+    - name: Create Secret yml
+      env:
+        APPLICATION_API_KEY: ${{ secrets.APPLICATION_API_KEY }}
+        APPLICATION_API_KEY_DIR: src/main/resources
+        APPLICATION_API_KEY_TEST_DIR: src/test/resources
+        APPLICATION_API_KEY_DIR_FILE_NAME: application-secret.yml
+      run: echo $APPLICATION_API_KEY | base64 --decode > $APPLICATION_API_KEY_DIR/$APPLICATION_API_KEY_DIR_FILE_NAME && 
+           echo $APPLICATION_API_KEY | base64 --decode > $APPLICATION_API_KEY_TEST_DIR/$APPLICATION_API_KEY_DIR_FILE_NAME
     - name: Build with Gradle
       uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1

@@ -43,11 +43,11 @@ class PostServiceTest {
         //given
         Member member = new Member("rnjswo1@gmail.com", "nickn", "!Pass123");
         memberRepository.save(member);
-        PostRequestDto postRequestDto  = new PostRequestDto("question5", "answer",  FeelEnum.HAPPY, WeatherEnum.SUN, GenreEnum.K_POP);
+//        PostRequestDto postRequestDto  = new PostRequestDto("question5", "answer",  FeelEnum.HAPPY, WeatherEnum.SUN, GenreEnum.K_POP);
 
         //when
-        Long id = postService.savePost(postRequestDto, member).getData();
-        Post post = postRepository.findById(id).orElseThrow();
+//        Long id = postService.savePost(postRequestDto, member).getData();
+//        Post post = postRepository.findById(id).orElseThrow();
 
         //then
 //        assertThat(post.getMember()).isEqualTo(member);

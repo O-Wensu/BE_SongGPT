@@ -1,5 +1,7 @@
 package com.team2.songgpt.service;
 
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.team2.songgpt.dto.member.*;
 import com.team2.songgpt.entity.Member;
 import com.team2.songgpt.entity.RefreshToken;
@@ -11,15 +13,19 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +35,11 @@ public class MemberService {
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
     private final RefreshTokenRepository refreshTokenRepository;
+
+    @Value("${cloud.aws.s3.bucket}")
+    private String bucket;
+
+    private final AmazonS3 amazonS3;
 
     /**
      * 회원 정보
@@ -154,6 +165,33 @@ public class MemberService {
         response.addHeader(JwtUtil.REFRESH_TOKEN, tokenDto.getRefreshToken());
     }
 
+    /**
+     * 프로필 이미지 변경
+     */
+    @Transactional
+    public ResponseDto<?> updateProfile(MultipartFile image, Member member) {
+        //중복된 이름 방지를 위한 UUID 붙이기
+        String fileName = UUID.randomUUID() + "-" + image.getOriginalFilename();
+        ObjectMetadata objMeta = new ObjectMetadata();
+
+        try {
+            objMeta.setContentLength(image.getInputStream().available());
+            //s3에 파일 업로드
+            amazonS3.putObject(bucket, fileName, image.getInputStream(), objMeta);
+        } catch (IOException e) {
+            throw new IllegalArgumentException("이미지 업로드에 실패했습니다.");
+        }
+
+        //이미지 url
+        String imageUrl = amazonS3.getUrl(bucket, fileName).toString();
+
+        //회원 프로필 이미지 설정
+        Member savedMember = validateMember(member.getEmail());
+        savedMember.setImageUrl(imageUrl);
+        return ResponseDto.setSuccess(imageUrl);
+    }
+
+    // ==== 유효성 검사 ====
     private void tokenNullCheck(String token) {
         if (token == null) {
             throw new NullPointerException("토큰이 없습니다.");

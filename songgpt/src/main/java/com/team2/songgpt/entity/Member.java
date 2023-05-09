@@ -25,10 +25,17 @@ public class Member {
     @Column(nullable = false)
     private String nickname;
 
+    @Column(nullable = false)
+    private String imageUrl;
 
     public Member(String email, String password, String nickname) {
         this.email = email;
         this.password = password;
         this.nickname = nickname;
+        this.imageUrl = "none";
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 }

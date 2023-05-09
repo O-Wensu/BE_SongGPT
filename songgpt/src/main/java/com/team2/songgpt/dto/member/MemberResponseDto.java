@@ -13,8 +13,11 @@ public class MemberResponseDto {
     @JsonProperty("nickname")
     private String nickname;
 
+    private String image;
+
     public MemberResponseDto(Member member) {
         this.email = member.getEmail();
         this.nickname = member.getNickname();
+        this.image = member.getImageUrl();
     }
 }

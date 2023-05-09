@@ -2,12 +2,18 @@ package com.team2.songgpt.controller;
 
 import com.team2.songgpt.dto.member.*;
 import com.team2.songgpt.global.dto.ResponseDto;
+import com.team2.songgpt.global.security.UserDetailsImpl;
 import com.team2.songgpt.service.MemberService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @RestController
 @RequiredArgsConstructor
@@ -38,5 +44,10 @@ public class MemberController {
     @GetMapping("/newAccess")
     public ResponseDto<?> callNewAccessToken(@CookieValue(value = "Refresh_Token", required = false) String refreshToken, HttpServletRequest request, HttpServletResponse response) {
         return memberService.callNewAccessToken(refreshToken, request, response);
+    }
+
+    @PostMapping(value = "/profile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseDto<?> updateProfile(@RequestParam(value = "image") MultipartFile image, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return memberService.updateProfile(image, userDetails.getMember());
     }
 }

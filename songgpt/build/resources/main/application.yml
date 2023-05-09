@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    driver-class-name: org.mariadb.jdbc.Driver
+  jpa:
+    properties:
+      hibernate:
+        globally_quoted_identifiers: 'true'
+    hibernate:
+      ddl-auto: create
+  profiles:
+    include: API-KEY, secret
+  messages:
+    encoding: UTF-8
+
+logging.level:
+  org.hibernate.SQL: debug

@@ -43,7 +43,7 @@ public class MemberService {
         Member member = findMemberByToken(token);
 
         MemberResponseDto memberResponseDto = new MemberResponseDto(member);
-        return ResponseDto.setSuccess("Success", memberResponseDto);
+        return ResponseDto.setSuccess(memberResponseDto);
     }
 
     /**
@@ -63,7 +63,7 @@ public class MemberService {
 
         Member member = new Member(email, password, nickname);
         memberRepository.save(member);
-        return ResponseDto.setSuccess("Success", null);
+        return ResponseDto.setSuccess(null);
     }
 
 
@@ -91,7 +91,7 @@ public class MemberService {
 
         setHeader(response, tokenDto);
         LoginResponseDto loginResponseDto = new LoginResponseDto(member);
-        return ResponseDto.setSuccess("Success", loginResponseDto);
+        return ResponseDto.setSuccess(loginResponseDto);
     }
 
     /**
@@ -114,7 +114,7 @@ public class MemberService {
             String newToken = jwtUtil.createExpiredToken(userInfo, JwtUtil.ACCESS_TOKEN, expiredDate);
             SecurityContextHolder.getContext().setAuthentication(null);
             response.setHeader("Access_Token", newToken);
-            return ResponseDto.setSuccess("Success", null);
+            return ResponseDto.setSuccess(null);
         }
         throw new IllegalArgumentException("인증이 유효하지 않습니다.");
     }
@@ -145,7 +145,7 @@ public class MemberService {
         cookie.setPath("/");
         response.addCookie(cookie);
         response.setHeader("Access_Token", newAccessToken);
-        return ResponseDto.setSuccess("Success", null);
+        return ResponseDto.setSuccess(null);
     }
 
     //응답 헤더에 액세스, 리프레시 토큰 추가

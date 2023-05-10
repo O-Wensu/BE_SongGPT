@@ -45,13 +45,11 @@ public class PostResponseDto {
 
     @Getter
     public static class AllPostResponseDto extends PostResponseDto {
-        private String startPoint;
-        private String endPoint;
+        private String gradient;
 
         public AllPostResponseDto(Post post) {
             super(post);
-            this.startPoint = post.getStartPoint();
-            this.endPoint = post.getEndPoint();
+            this.gradient = post.getGradient();
         }
     }
 }

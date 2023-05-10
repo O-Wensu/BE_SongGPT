@@ -28,7 +28,8 @@ public class LikeService {
      * 좋아요
      */
     @Transactional
-    public ResponseDto updatePostLike(Long id, Member member) {
+
+    public ResponseDto<LikeResponseDto> updatePostLike(Long id, Member member) {
         // 게시글 존재확인
         Post post = postValidator.validateExistPost(id);
         Likes postLike = isPostLike(member, post);

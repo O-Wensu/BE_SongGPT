@@ -172,7 +172,7 @@ public class MemberService {
      * 프로필 이미지 변경
      */
     @Transactional
-    public ResponseDto<?> updateProfile(MultipartFile image, Member member) {
+    public ResponseDto<String> updateProfile(MultipartFile image, Member member) {
         //중복된 이름 방지를 위한 UUID 붙이기
         String fileName = UUID.randomUUID() + "-" + image.getOriginalFilename();
 

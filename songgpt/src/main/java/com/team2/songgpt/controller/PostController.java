@@ -2,11 +2,14 @@ package com.team2.songgpt.controller;
 
 import com.team2.songgpt.dto.post.PostRequestDto;
 import com.team2.songgpt.dto.post.PostResponseDto;
+import com.team2.songgpt.entity.Post;
+import com.team2.songgpt.global.dto.PageDto;
 import com.team2.songgpt.global.dto.ResponseDto;
 import com.team2.songgpt.global.security.UserDetailsImpl;
 import com.team2.songgpt.service.PostService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -25,7 +28,7 @@ public class PostController {
 
     // /board?page=0&size=4&sort=createdAt,DESC 요청으로 조회
     @GetMapping("/board")
-    public ResponseDto<List<AllPostResponseDto>> getPosts(Pageable pageable) {
+    public ResponseDto<PageDto> getPosts(Pageable pageable) {
         if (!isAuthenticated()) {
             return postService.getAllPostByAnonymous(pageable);
         }

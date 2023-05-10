@@ -43,8 +43,12 @@ class MemberControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @BeforeEach
+    void beforeEach(){
+
+    }
+
     @Test
-    @Order(1)
     @DisplayName("회원가입 성공")
     void signupA() throws Exception {
         //given
@@ -63,7 +67,6 @@ class MemberControllerTest {
     }
 
     @Test
-    @Order(2)
     @DisplayName("회원가입 실패, 같은 이메일")
     void signupB() throws Exception {
         //given
@@ -82,7 +85,6 @@ class MemberControllerTest {
     }
 
     @Test
-    @Order(3)
     @DisplayName("회원가입 실패, 같은 닉네임")
     void signupC() throws Exception {
         //given
@@ -102,7 +104,6 @@ class MemberControllerTest {
 
 
     @Test
-    @Order(4)
     void login() {
         //given
         SignupRequestDto requestDto = new SignupRequestDto();

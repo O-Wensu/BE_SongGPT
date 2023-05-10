@@ -4,12 +4,14 @@ import com.team2.songgpt.dto.post.PostRequestDto;
 import com.team2.songgpt.dto.post.PostResponseDto;
 import com.team2.songgpt.entity.Member;
 import com.team2.songgpt.entity.Post;
+import com.team2.songgpt.global.dto.PageDto;
 import com.team2.songgpt.global.dto.ResponseDto;
 import com.team2.songgpt.repository.LikeRepository;
 import com.team2.songgpt.repository.MemberRepository;
 import com.team2.songgpt.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -55,10 +57,10 @@ public class PostService {
      * 회원
      * 전체 게시글 조회
      */
-    public ResponseDto<List<AllPostResponseDto>> getAllPostByMember(Pageable pageable) {
+    public ResponseDto<PageDto> getAllPostByMember(Pageable pageable) {
         Member member = getMember();
-
-        List<Post> responseList = postRepository.findAll(pageable).getContent();
+        Page<Post> posts = postRepository.findAll(pageable);
+        List<Post> responseList = posts.getContent();
         List<AllPostResponseDto> postResponseDtoList = new ArrayList<>();
 
         for (Post post : responseList) {
@@ -69,17 +71,20 @@ public class PostService {
             postResponseDtoList.add(allpostResponseDto);
         }
 
-        return ResponseDto.setSuccess("member: success", postResponseDtoList);
+        PageDto pageDto = new PageDto(postResponseDtoList, posts.getTotalPages());
+
+        return ResponseDto.setSuccess("member: success", pageDto);
     }
 
     /**
      * 비회원
      * 전체 게시글 조회
      */
-    public ResponseDto<List<AllPostResponseDto>> getAllPostByAnonymous(Pageable pageable) {
-        List<AllPostResponseDto> postResponseDtos = postRepository.findAll(pageable).getContent().stream().map(AllPostResponseDto::new).collect(Collectors.toList());
-
-        return ResponseDto.setSuccess("anonymous: success", postResponseDtos);
+    public ResponseDto<PageDto> getAllPostByAnonymous(Pageable pageable) {
+        Page<Post> posts = postRepository.findAll(pageable);
+        List<AllPostResponseDto> postResponseDtos = posts.getContent().stream().map(AllPostResponseDto::new).collect(Collectors.toList());
+        PageDto pageDto = new PageDto(postResponseDtos, posts.getTotalPages());
+        return ResponseDto.setSuccess("anonymous: success", pageDto);
     }
 
     /**

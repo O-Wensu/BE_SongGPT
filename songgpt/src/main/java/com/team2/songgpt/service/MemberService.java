@@ -6,6 +6,7 @@ import com.team2.songgpt.dto.member.*;
 import com.team2.songgpt.entity.Member;
 import com.team2.songgpt.entity.RefreshToken;
 import com.team2.songgpt.global.dto.ResponseDto;
+import com.team2.songgpt.global.exception.ExceptionMessage;
 import com.team2.songgpt.global.jwt.JwtUtil;
 import com.team2.songgpt.repository.MemberRepository;
 import com.team2.songgpt.repository.RefreshTokenRepository;
@@ -124,10 +125,10 @@ public class MemberService {
             Date expiredDate = new Date(now.getTime() - 1000);
             String newToken = jwtUtil.createExpiredToken(userInfo, JwtUtil.ACCESS_TOKEN, expiredDate);
             SecurityContextHolder.getContext().setAuthentication(null);
-            response.setHeader("Access_Token", newToken);
+            response.setHeader(JwtUtil.ACCESS_TOKEN, newToken);
             return ResponseDto.setSuccess(null);
         }
-        throw new IllegalArgumentException("인증이 유효하지 않습니다.");
+        throw new IllegalArgumentException(ExceptionMessage.NOT_LOGIN.getMessage());
     }
 
     /**
@@ -140,7 +141,7 @@ public class MemberService {
 
         boolean isRefreshToken = jwtUtil.refreshTokenValidation(refreshToken);
         if (!isRefreshToken) {
-            throw new IllegalArgumentException("토큰이 유효하지 않습니다.");
+            throw new IllegalArgumentException(ExceptionMessage.EXPIRED_TOKEN.getMessage());
         }
 
         String email = jwtUtil.getUserInfoFromToken(refreshToken);
@@ -155,7 +156,7 @@ public class MemberService {
         cookie.setSecure(true);
         cookie.setPath("/");
         response.addCookie(cookie);
-        response.setHeader("Access_Token", newAccessToken);
+        response.setHeader(JwtUtil.ACCESS_TOKEN, newAccessToken);
         return ResponseDto.setSuccess(null);
     }
 
@@ -183,7 +184,7 @@ public class MemberService {
             //s3에 파일 업로드
             amazonS3.putObject(bucket, fileName, image.getInputStream(), objMeta);
         } catch (IOException e) {
-            throw new IllegalArgumentException("이미지 업로드에 실패했습니다.");
+            throw new IllegalArgumentException(ExceptionMessage.FAIL_IMAGE_UPLOAD.getMessage());
         }
 
         //이미지 url
@@ -198,44 +199,44 @@ public class MemberService {
     // ==== 유효성 검사 ====
     private void tokenNullCheck(String token) {
         if (token == null) {
-            throw new NullPointerException("토큰이 없습니다.");
+            throw new NullPointerException(ExceptionMessage.HAS_NO_TOKEN.getMessage());
         }
     }
 
     private void tokenValidateCheck(String token) {
         if (!jwtUtil.validateToken(token)) {
-            throw new IllegalArgumentException("토큰이 유효하지 않습니다.");
+            throw new IllegalArgumentException(ExceptionMessage.EXPIRED_TOKEN.getMessage());
         }
     }
 
     private Member findMemberByToken(String token) {
         String userInfo = jwtUtil.getUserInfoFromToken(token);
         return memberRepository.findByEmail(userInfo).orElseThrow(
-                () -> new IllegalArgumentException("토큰이 유효하지 않습니다.")
+                () -> new IllegalArgumentException(ExceptionMessage.EXPIRED_TOKEN.getMessage())
         );
     }
 
     private void validateMemberByEmail(String email) {
         memberRepository.findByEmail(email).ifPresent(member -> {
-            throw new IllegalArgumentException("이미 등록된 회원입니다.");
+            throw new IllegalArgumentException(ExceptionMessage.DUPLICATED_MEMBER.getMessage());
         });
     }
 
     private void validateMemberByNickname(String nickname) {
         memberRepository.findByNickname(nickname).ifPresent(member -> {
-            throw new IllegalArgumentException("중복된 닉네임입니다.");
+            throw new IllegalArgumentException(ExceptionMessage.DUPLICATED_NICKNAME.getMessage());
         });
     }
 
     private Member validateMember(String email) {
         return memberRepository.findByEmail(email).orElseThrow(
-                () -> new IllegalArgumentException("등록되지 않은 회원입니다.")
+                () -> new IllegalArgumentException(ExceptionMessage.NO_EXIST_MEMBER.getMessage())
         );
     }
 
     private void validatePassword(String password, Member member) {
         if (!passwordEncoder.matches(password, member.getPassword())) {
-            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+            throw new IllegalArgumentException(ExceptionMessage.NO_MATCH_PASSWORD.getMessage());
         }
     }
 }

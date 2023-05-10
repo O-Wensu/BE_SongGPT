@@ -6,6 +6,7 @@ import com.team2.songgpt.entity.Member;
 import com.team2.songgpt.entity.Post;
 import com.team2.songgpt.global.dto.PageDto;
 import com.team2.songgpt.global.dto.ResponseDto;
+import com.team2.songgpt.global.exception.ExceptionMessage;
 import com.team2.songgpt.repository.LikeRepository;
 import com.team2.songgpt.repository.MemberRepository;
 import com.team2.songgpt.repository.PostRepository;
@@ -124,13 +125,13 @@ public class PostService {
     // ==== 유효성 검증 ====
     private void validatePostAuthor(Member member, Post post) {
         if (!member.getNickname().equals(post.getNickname())) {
-            throw new IllegalArgumentException("권한이 없습니다.");
+            throw new IllegalArgumentException(ExceptionMessage.NO_AUTHORIZATION.getMessage());
         }
     }
 
     private Post ValidateExistPost(Long id) {
         return postRepository.findById(id).orElseThrow(
-                () -> new IllegalArgumentException("게시글이 존재하지 않습니다.")
+                () -> new IllegalArgumentException(ExceptionMessage.NO_EXIST_POST.getMessage())
         );
     }
 

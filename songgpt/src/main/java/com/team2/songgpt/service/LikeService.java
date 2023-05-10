@@ -5,6 +5,7 @@ import com.team2.songgpt.entity.Likes;
 import com.team2.songgpt.entity.Member;
 import com.team2.songgpt.entity.Post;
 import com.team2.songgpt.global.dto.ResponseDto;
+import com.team2.songgpt.global.exception.ExceptionMessage;
 import com.team2.songgpt.repository.LikeRepository;
 import com.team2.songgpt.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
@@ -52,7 +53,7 @@ public class LikeService {
     // 게시글 여부확인
     private Post validatePost(Long id) {
         return postRepository.findById(id).orElseThrow(
-                () -> new IllegalArgumentException("게시글이 존재하지 않습니다.")
+                () -> new IllegalArgumentException(ExceptionMessage.NO_EXIST_POST.getMessage())
         );
     }
 

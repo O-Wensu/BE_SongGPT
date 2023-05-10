@@ -20,11 +20,8 @@ public class GptConfig {
     public static final Double TOP_P = 1.0;
     public static final String MEDIA_TYPE = "application/json; charset=UTF-8";
     public static final String CHAT_URL = "https://api.openai.com/v1/chat/completions";
-
     public static final String TEXT_URL = "https://api.openai.com/v1/completions";
     public static final String MODEL_INFO_URL = "https://api.openai.com/v1/models/";
-
-    public static final String GPT_ERROR = "현재 Gpt를 시용할 수 없는 상태입니다.";
 
     public String getApiKey() {
         return apiKey;

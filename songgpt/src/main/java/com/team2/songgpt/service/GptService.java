@@ -3,6 +3,7 @@ package com.team2.songgpt.service;
 import com.team2.songgpt.dto.gpt.*;
 import com.team2.songgpt.global.config.GptConfig;
 import com.team2.songgpt.global.dto.ResponseDto;
+import com.team2.songgpt.global.exception.ExceptionMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -72,7 +73,7 @@ public class GptService {
     public ResponseDto<AnswerResponseDto> askQuestion(QuestionRequestDto requestDto) {
         //모델이 열려 있는지?
         if (!checkModel(GptConfig.CHAT_MODEL)) {
-            return ResponseDto.setSuccess("success", new AnswerResponseDto(GptConfig.GPT_ERROR));
+            return ResponseDto.setSuccess( new AnswerResponseDto(ExceptionMessage.CANT_USE_GPT.getMessage()));
         }
 
         //모델 종류 설정
@@ -86,13 +87,13 @@ public class GptService {
 
         for (Choice ch : choices) { answer.append(ch.getMessage().getContent());}
 
-        return ResponseDto.setSuccess("success", new AnswerResponseDto(answer.toString()));
+        return ResponseDto.setSuccess(new AnswerResponseDto(answer.toString()));
     }
 
     public ResponseDto<AnswerResponseDto> askTextQuestion(QuestionRequestDto requestDto) {
         //모델이 열려 있는지?
         if(checkModel(GptConfig.TEXT_MODEL)) {
-            return ResponseDto.setSuccess("success", new AnswerResponseDto(GptConfig.GPT_ERROR));
+            return ResponseDto.setSuccess(new AnswerResponseDto(ExceptionMessage.CANT_USE_GPT.getMessage()));
         }
         //모델 종류 설정
         GptConfig.setMODEL(GptConfig.TEXT_MODEL);
@@ -110,6 +111,6 @@ public class GptService {
 
         for (TextChoice ch : choices) { answer.append(ch.getText());}
 
-        return ResponseDto.setSuccess("success", new AnswerResponseDto(answer.toString()));
+        return ResponseDto.setSuccess(new AnswerResponseDto(answer.toString()));
     }
 }

@@ -42,3 +42,5 @@ src/main/resources/application-API-KEY.properties
 src/main/resources/application-API-KEY.yml
 src/main/resources/application-secret.yml
 src/main/resources/application-aws.yml
+
+src/test/resources/application-secret.yml

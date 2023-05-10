@@ -2,6 +2,7 @@ package com.team2.songgpt.service;
 
 import com.team2.songgpt.dto.post.PostRequestDto;
 import com.team2.songgpt.dto.post.PostResponseDto;
+import com.team2.songgpt.dto.post.PostResponseDto.AllPostResponseDto;
 import com.team2.songgpt.entity.Member;
 import com.team2.songgpt.entity.Post;
 import com.team2.songgpt.global.dto.PageDto;
@@ -17,7 +18,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.team2.songgpt.dto.post.PostResponseDto.AllPostResponseDto;
 
 import java.util.ArrayList;
 import java.util.List;

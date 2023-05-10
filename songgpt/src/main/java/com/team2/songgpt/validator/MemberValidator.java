@@ -12,10 +12,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class MemberValidator {
     private final MemberRepository memberRepository;
-    private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
-
-
 
     public void validateMemberByEmail(String email) {
         memberRepository.findByEmail(email).ifPresent(member -> {

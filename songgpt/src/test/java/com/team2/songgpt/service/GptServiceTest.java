@@ -99,7 +99,6 @@ class GptServiceTest {
         QuestionRequestDto questionRequestDto = new QuestionRequestDto(s);
 
 
-
         //when
         ResponseDto<AnswerResponseDto> responseDto = gptService.askQuestion(questionRequestDto);
 

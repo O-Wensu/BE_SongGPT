@@ -54,7 +54,7 @@ public class MemberService {
         //유효성 검사
         tokenValidator.tokenNullCheck(token);
         tokenValidator.tokenValidateCheck(token);
-        Member member = memberValidator.findMemberByToken(token);
+        Member member = tokenValidator.findMemberByToken(token);
 
         MemberResponseDto memberResponseDto = new MemberResponseDto(member);
         return ResponseDto.setSuccess(memberResponseDto);

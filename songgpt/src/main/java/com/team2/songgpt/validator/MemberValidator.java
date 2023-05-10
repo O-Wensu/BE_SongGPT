@@ -15,12 +15,7 @@ public class MemberValidator {
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
 
-    public Member findMemberByToken(String token) {
-        String userInfo = jwtUtil.getUserInfoFromToken(token);
-        return memberRepository.findByEmail(userInfo).orElseThrow(
-                () -> new IllegalArgumentException(ExceptionMessage.EXPIRED_TOKEN.getMessage())
-        );
-    }
+
 
     public void validateMemberByEmail(String email) {
         memberRepository.findByEmail(email).ifPresent(member -> {

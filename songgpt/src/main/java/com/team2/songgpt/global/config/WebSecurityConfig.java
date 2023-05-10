@@ -44,6 +44,7 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests()
                 .requestMatchers("/member/register", "/member/login").permitAll()
                 .requestMatchers("/board/**").permitAll()
+                .requestMatchers("/swagger*/**", "/v3/api-docs/**").permitAll()
                 .anyRequest().authenticated()
                 .and().addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 

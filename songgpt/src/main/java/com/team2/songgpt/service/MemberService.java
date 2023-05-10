@@ -1,5 +1,7 @@
 package com.team2.songgpt.service;
 
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.team2.songgpt.dto.member.*;
 import com.team2.songgpt.entity.Member;
 import com.team2.songgpt.entity.RefreshToken;
@@ -11,15 +13,19 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -30,19 +36,25 @@ public class MemberService {
     private final PasswordEncoder passwordEncoder;
     private final RefreshTokenRepository refreshTokenRepository;
 
+    @Value("${cloud.aws.s3.bucket}")
+    private String bucket;
+
+    private final AmazonS3 amazonS3;
+
+    /**
+     * 회원 정보
+     */
     @Transactional
     public ResponseDto<MemberResponseDto> getMember(HttpServletRequest request) {
         String token = jwtUtil.resolveToken(request, JwtUtil.ACCESS_TOKEN);
 
+        //유효성 검사
         tokenNullCheck(token);
         tokenValidateCheck(token);
+        Member member = findMemberByToken(token);
 
-        String userInfo = jwtUtil.getUserInfoFromToken(token);
-        Member member = memberRepository.findByEmail(userInfo).orElseThrow(
-                () -> new IllegalArgumentException("토큰이 유효하지 않습니다.")
-        );
         MemberResponseDto memberResponseDto = new MemberResponseDto(member);
-        return ResponseDto.setSuccess("Success", memberResponseDto);
+        return ResponseDto.setSuccess(memberResponseDto);
     }
 
     /**
@@ -56,20 +68,15 @@ public class MemberService {
 
         password = passwordEncoder.encode(password);
 
-        Optional<Member> findEmail = memberRepository.findByEmail(email);
-        if (findEmail.isPresent()) {
-            throw new IllegalArgumentException("이미 등록된 회원입니다.");
-        }
-
-        Optional<Member> findNickname = memberRepository.findByNickname(nickname);
-        if (findNickname.isPresent()) {
-            throw new IllegalArgumentException("이미 등록된 회원입니다.");
-        }
+        //유효성 검사
+        validateMemberByEmail(email);
+        validateMemberByNickname(nickname);
 
         Member member = new Member(email, password, nickname);
         memberRepository.save(member);
-        return ResponseDto.setSuccess("Success", null);
+        return ResponseDto.setSuccess(null);
     }
+
 
     /**
      * 로그인
@@ -79,13 +86,9 @@ public class MemberService {
         String email = loginRequestDto.getEmail();
         String password = loginRequestDto.getPassword();
 
-        Member member = memberRepository.findByEmail(email).orElseThrow(
-                () -> new IllegalArgumentException("등록되지 않은 회원입니다.")
-        );
-
-        if (!passwordEncoder.matches(password, member.getPassword())) {
-            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
-        }
+        //유효성 검사
+        Member member = validateMember(email);
+        validatePassword(password, member);
 
         TokenDto tokenDto = jwtUtil.createAllToken(member.getEmail());
         Optional<RefreshToken> refreshToken = refreshTokenRepository.findByEmail(member.getEmail());
@@ -99,7 +102,7 @@ public class MemberService {
 
         setHeader(response, tokenDto);
         LoginResponseDto loginResponseDto = new LoginResponseDto(member);
-        return ResponseDto.setSuccess("Success", loginResponseDto);
+        return ResponseDto.setSuccess(loginResponseDto);
     }
 
     /**
@@ -122,7 +125,7 @@ public class MemberService {
             String newToken = jwtUtil.createExpiredToken(userInfo, JwtUtil.ACCESS_TOKEN, expiredDate);
             SecurityContextHolder.getContext().setAuthentication(null);
             response.setHeader("Access_Token", newToken);
-            return ResponseDto.setSuccess("Success", null);
+            return ResponseDto.setSuccess(null);
         }
         throw new IllegalArgumentException("인증이 유효하지 않습니다.");
     }
@@ -153,7 +156,7 @@ public class MemberService {
         cookie.setPath("/");
         response.addCookie(cookie);
         response.setHeader("Access_Token", newAccessToken);
-        return ResponseDto.setSuccess("Success", null);
+        return ResponseDto.setSuccess(null);
     }
 
     //응답 헤더에 액세스, 리프레시 토큰 추가
@@ -162,6 +165,37 @@ public class MemberService {
         response.addHeader(JwtUtil.REFRESH_TOKEN, tokenDto.getRefreshToken());
     }
 
+    /**
+     * 프로필 이미지 변경
+     */
+    @Transactional
+    public ResponseDto<?> updateProfile(MultipartFile image, Member member) {
+        //중복된 이름 방지를 위한 UUID 붙이기
+        String fileName = UUID.randomUUID() + "-" + image.getOriginalFilename();
+
+        //메타 데이터 설정
+        ObjectMetadata objMeta = new ObjectMetadata();
+        objMeta.setContentType(image.getContentType());
+        objMeta.setContentLength(image.getSize());
+
+        try {
+            objMeta.setContentLength(image.getInputStream().available());
+            //s3에 파일 업로드
+            amazonS3.putObject(bucket, fileName, image.getInputStream(), objMeta);
+        } catch (IOException e) {
+            throw new IllegalArgumentException("이미지 업로드에 실패했습니다.");
+        }
+
+        //이미지 url
+        String imageUrl = amazonS3.getUrl(bucket, fileName).toString();
+
+        //회원 프로필 이미지 설정
+        Member savedMember = validateMember(member.getEmail());
+        savedMember.setImageUrl(imageUrl);
+        return ResponseDto.setSuccess(imageUrl);
+    }
+
+    // ==== 유효성 검사 ====
     private void tokenNullCheck(String token) {
         if (token == null) {
             throw new NullPointerException("토큰이 없습니다.");
@@ -171,6 +205,37 @@ public class MemberService {
     private void tokenValidateCheck(String token) {
         if (!jwtUtil.validateToken(token)) {
             throw new IllegalArgumentException("토큰이 유효하지 않습니다.");
+        }
+    }
+
+    private Member findMemberByToken(String token) {
+        String userInfo = jwtUtil.getUserInfoFromToken(token);
+        return memberRepository.findByEmail(userInfo).orElseThrow(
+                () -> new IllegalArgumentException("토큰이 유효하지 않습니다.")
+        );
+    }
+
+    private void validateMemberByEmail(String email) {
+        memberRepository.findByEmail(email).ifPresent(member -> {
+            throw new IllegalArgumentException("이미 등록된 회원입니다.");
+        });
+    }
+
+    private void validateMemberByNickname(String nickname) {
+        memberRepository.findByNickname(nickname).ifPresent(member -> {
+            throw new IllegalArgumentException("중복된 닉네임입니다.");
+        });
+    }
+
+    private Member validateMember(String email) {
+        return memberRepository.findByEmail(email).orElseThrow(
+                () -> new IllegalArgumentException("등록되지 않은 회원입니다.")
+        );
+    }
+
+    private void validatePassword(String password, Member member) {
+        if (!passwordEncoder.matches(password, member.getPassword())) {
+            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
     }
 }

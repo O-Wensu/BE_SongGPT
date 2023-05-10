@@ -13,6 +13,13 @@ on:
   pull_request:
     branches: [ "main" ]
 
+#AWS리전, 버킷 이름, CodeDeploy앱 이름, CodeDeploy배포 그룹 이름
+env:
+  AWS_REGION: ap-northeast-2
+  S3_BUCKET_NAME: song-github-actions-s3-bucket
+  CODE_DEPLOY_APPLICATION_NAME: my-song-app
+  CODE_DEPLOY_DEPLOYMENT_GROUP_NAME: my-codedeploy-deployment-group
+
 permissions:
   contents: read
 
@@ -28,5 +35,61 @@ jobs:
       with:
         java-version: '17'
         distribution: 'temurin'
+        
+      # YML 생성
+    - name: Set YML
+      run: |
+        mkdir -p src/main/resources
+        echo "${{ secrets.APPLICATION_SECRET }}" | base64 --decode > src/main/resources/application-secret.yml
+        echo "${{ secrets.APPLICATION_API_KEY }}" | base64 --decode > src/main/resources/application-API-KEY.yml
+        find src
+    - name: init with Gradle
+      uses: gradle/gradle-build-action@v2
+    - run: gradle init
     - name: Build with Gradle
       uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
+      with:
+        gradle-version: 7.5.1
+        arguments: build
+      
+      # 디렉토리 생성
+    - name: Make Directory
+      run: mkdir -p deploy
+    - name: Make Directory
+      run: mkdir -p ./build/libs
+        
+      # Jar 파일 복사
+    - name: Copy Jar
+      run: cp ./build/libs/*.jar ./deploy
+      
+      # appspec.yml 파일 복사
+    - name: Copy appspec.yml
+      run: cp appspec.yml ./deploy
+
+      # script files 복사
+    - name: Copy script
+      run: cp ./scripts/*.sh ./deploy
+      
+      # 압축
+    - name: Make zip file
+      run: zip -r -qq -j songgpt.zip deploy
+      
+      #AWS 인증
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: $AWS_REGION
+
+      #S3에 빌드된 파일 업로드
+    - name: Upload to AWS S3
+      run: aws s3 cp --region ap-northeast-2 songgpt.zip s3://$S3_BUCKET_NAME/
+      
+      # Deploy
+    - name: Code Deploy
+      run: aws deploy create-deployment --application-name $CODE_DEPLOY_APPLICATION_NAME
+        --deployment-config-name CodeDeployDefault.AllAtOnce --file-exists-behavior OVERWRITE 
+        --deployment-group-name $CODE_DEPLOY_DEPLOYMENT_GROUP_NAME --s3-location bucket=$S3_BUCKET_NAME,
+        bundleType=zip,key=songgpt.zip
+        --region $AWS_REGION

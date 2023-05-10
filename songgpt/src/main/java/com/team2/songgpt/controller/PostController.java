@@ -5,6 +5,7 @@ import com.team2.songgpt.dto.post.PostResponseDto;
 import com.team2.songgpt.global.dto.ResponseDto;
 import com.team2.songgpt.global.security.UserDetailsImpl;
 import com.team2.songgpt.service.PostService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -40,7 +41,7 @@ public class PostController {
     }
 
     @PostMapping("/post")
-    public ResponseDto<?> savePost(@RequestBody PostRequestDto postRequestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseDto<?> savePost(@Valid @RequestBody PostRequestDto postRequestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return postService.savePost(postRequestDto, userDetails.getMember());
     }
 

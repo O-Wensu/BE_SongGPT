@@ -41,7 +41,9 @@ public class WebSecurityConfig {
                 .csrf().disable()
                 .httpBasic().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-                .authorizeHttpRequests().requestMatchers("/member/**", "/board/**").permitAll()
+                .authorizeHttpRequests()
+                .requestMatchers("/member/register", "/member/login").permitAll()
+                .requestMatchers("/board/**").permitAll()
                 .anyRequest().authenticated()
                 .and().addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 

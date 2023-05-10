@@ -9,7 +9,6 @@ import lombok.Setter;
 @NoArgsConstructor
 public class AnswerResponseDto {
     private String answer;
-
     public AnswerResponseDto(String answer) {
         this.answer = answer;
     }

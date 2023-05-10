@@ -41,9 +41,7 @@ public class Post extends TimeStamped {
     private GenreEnum genreTag;
 
     @Column(nullable = false)
-    private String startPoint;
-    @Column(nullable = false)
-    private String endPoint;
+    private String gradient;
 
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -66,8 +64,7 @@ public class Post extends TimeStamped {
         this.feelTag = postRequestDto.getFeelTag();
         this.weatherTag = postRequestDto.getWeatherTag();
         this.genreTag = postRequestDto.getGenreTag();
-        this.startPoint = postRequestDto.getStartPoint();
-        this.endPoint = postRequestDto.getEndPoint();
+        this.gradient = postRequestDto.getGradient();
         this.likes = new ArrayList<>();
     }
 

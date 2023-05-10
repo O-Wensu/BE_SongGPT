@@ -2,23 +2,18 @@ package com.team2.songgpt.controller;
 
 import com.team2.songgpt.dto.post.PostRequestDto;
 import com.team2.songgpt.dto.post.PostResponseDto;
-import com.team2.songgpt.entity.Post;
 import com.team2.songgpt.global.dto.PageDto;
 import com.team2.songgpt.global.dto.ResponseDto;
 import com.team2.songgpt.global.security.UserDetailsImpl;
 import com.team2.songgpt.service.PostService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import com.team2.songgpt.dto.post.PostResponseDto.AllPostResponseDto;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -38,7 +33,7 @@ public class PostController {
     @GetMapping("/board/{id}")
     public ResponseDto<PostResponseDto> getPost(@PathVariable Long id) {
         if (!isAuthenticated()) {
-            return postService.getPostByAnonmous(id);
+            return postService.getPostByAnonymous(id);
         }
         return postService.getPostByMember(id);
     }

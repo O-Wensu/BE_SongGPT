@@ -33,8 +33,8 @@ public class PapagoService {
     private HttpEntity<PapagoRequestDto> buildHttpEntity(PapagoRequestDto papagoRequestDto) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.parseMediaType(PapagoConfig.CONTENT_TYPE));///?
-        headers.add(PapagoConfig.KEY_NAME,papagoConfig.getApiKey());
-        headers.add(PapagoConfig.ID_NAME,papagoConfig.getApiId());
+        headers.add(PapagoConfig.KEY_NAME, papagoConfig.getApiKey());
+        headers.add(PapagoConfig.ID_NAME, papagoConfig.getApiId());
         return new HttpEntity<>(papagoRequestDto, headers);
     }
 

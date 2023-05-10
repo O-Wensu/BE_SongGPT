@@ -2,6 +2,7 @@ package com.team2.songgpt.service;
 
 import com.team2.songgpt.dto.post.PostRequestDto;
 import com.team2.songgpt.dto.post.PostResponseDto;
+import com.team2.songgpt.dto.post.PostResponseDto.AllPostResponseDto;
 import com.team2.songgpt.entity.Member;
 import com.team2.songgpt.entity.Post;
 import com.team2.songgpt.global.dto.PageDto;
@@ -9,6 +10,7 @@ import com.team2.songgpt.global.dto.ResponseDto;
 import com.team2.songgpt.repository.LikeRepository;
 import com.team2.songgpt.repository.MemberRepository;
 import com.team2.songgpt.repository.PostRepository;
+import com.team2.songgpt.validator.PostValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -16,7 +18,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.team2.songgpt.dto.post.PostResponseDto.AllPostResponseDto;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +32,7 @@ public class PostService {
     private final PostRepository postRepository;
     private final LikeRepository likeRepository;
     private final MemberRepository memberRepository;
+    private final PostValidator postValidator;
 
     /**
      * 게시글 저장
@@ -47,8 +49,8 @@ public class PostService {
      */
     @Transactional
     public ResponseDto<?> deletePost(Long id, Member member) {
-        Post post = ValidateExistPost(id);
-        validatePostAuthor(member, post);
+        Post post = postValidator.validateExistPost(id);
+        postValidator.validatePostAuthor(member, post);
         postRepository.delete(post);
         return ResponseDto.setSuccess(null);
     }
@@ -93,7 +95,7 @@ public class PostService {
      */
     public ResponseDto<PostResponseDto> getPostByMember(Long id) {
         Member member = getMember();
-        Post post = ValidateExistPost(id);
+        Post post = postValidator.validateExistPost(id);
         PostResponseDto responseDto = new PostResponseDto(post);
 
         //게시글을 좋아요 했는가/안했는가 판단
@@ -108,8 +110,8 @@ public class PostService {
      * 비회원
      * 상세 게시글 조회
      */
-    public ResponseDto<PostResponseDto> getPostByAnonmous(Long id) {
-        Post post = ValidateExistPost(id);
+    public ResponseDto<PostResponseDto> getPostByAnonymous(Long id) {
+        Post post = postValidator.validateExistPost(id);
         PostResponseDto postResponseDto = new PostResponseDto(post);
 
         return ResponseDto.setSuccess("anonymous: success", postResponseDto);
@@ -120,18 +122,4 @@ public class PostService {
         Member member = memberRepository.findByEmail(email).get();
         return member;
     }
-
-    // ==== 유효성 검증 ====
-    private void validatePostAuthor(Member member, Post post) {
-        if (!member.getNickname().equals(post.getNickname())) {
-            throw new IllegalArgumentException("권한이 없습니다.");
-        }
-    }
-
-    private Post ValidateExistPost(Long id) {
-        return postRepository.findById(id).orElseThrow(
-                () -> new IllegalArgumentException("게시글이 존재하지 않습니다.")
-        );
-    }
-
 }

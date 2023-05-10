@@ -6,7 +6,7 @@ import com.team2.songgpt.entity.Member;
 import com.team2.songgpt.entity.Post;
 import com.team2.songgpt.global.dto.ResponseDto;
 import com.team2.songgpt.repository.LikeRepository;
-import com.team2.songgpt.repository.PostRepository;
+import com.team2.songgpt.validator.PostValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,16 +21,17 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 @Slf4j
 public class LikeService {
-
-    private final PostRepository postRepository;
     private final LikeRepository likeRepository;
+    private final PostValidator postValidator;
 
     /**
      * 좋아요
      */
     @Transactional
+
     public ResponseDto<LikeResponseDto> updatePostLike(Long id, Member member) {
-        Post post = validatePost(id);// 게시글 존재확인.
+        // 게시글 존재확인
+        Post post = postValidator.validateExistPost(id);
         Likes postLike = isPostLike(member, post);
 
         //좋아요한 사람
@@ -49,12 +50,6 @@ public class LikeService {
         return likeRepository.findAllByMemberId(member.getId()).stream().map(likes -> likes.getPost().getId()).collect(Collectors.toList());
     }
 
-    // 게시글 여부확인
-    private Post validatePost(Long id) {
-        return postRepository.findById(id).orElseThrow(
-                () -> new IllegalArgumentException("게시글이 존재하지 않습니다.")
-        );
-    }
 
     // 좋아요 여부확인
     private Likes isPostLike(Member member, Post post) {

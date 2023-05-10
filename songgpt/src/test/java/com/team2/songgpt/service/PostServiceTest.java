@@ -94,7 +94,6 @@ class PostServiceTest {
                 () -> postService.deletePost(1L, member));
     }
 
-    @Test
     private PostRequestDto makePostRequestDto() {
         return PostRequestDto.builder()
                 .question("질문 내용")

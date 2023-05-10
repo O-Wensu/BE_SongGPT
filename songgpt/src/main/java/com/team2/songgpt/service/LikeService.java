@@ -29,7 +29,7 @@ public class LikeService {
      * 좋아요
      */
     @Transactional
-    public ResponseDto updatePostLike(Long id, Member member) {
+    public ResponseDto<LikeResponseDto> updatePostLike(Long id, Member member) {
         Post post = validatePost(id);// 게시글 존재확인.
         Likes postLike = isPostLike(member, post);
 

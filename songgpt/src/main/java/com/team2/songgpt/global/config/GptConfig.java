@@ -24,6 +24,8 @@ public class GptConfig {
     public static final String TEXT_URL = "https://api.openai.com/v1/completions";
     public static final String MODEL_INFO_URL = "https://api.openai.com/v1/models/";
 
+    public static final String GPT_ERROR = "현재 Gpt를 시용할 수 없는 상태입니다.";
+
     public String getApiKey() {
         return apiKey;
     }

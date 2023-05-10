@@ -84,7 +84,7 @@ class GptServiceTest {
         //given
 
         //when
-        Boolean aBoolean = gptService.checkModel();
+        Boolean aBoolean = gptService.checkModel(GptConfig.TEXT_MODEL);
 
         //then
         assertThat(true).isEqualTo(aBoolean);

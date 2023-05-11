@@ -15,6 +15,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 public class PostController {
@@ -28,6 +30,14 @@ public class PostController {
             return postService.getAllPostByAnonymous(pageable);
         }
         return postService.getAllPostByMember(pageable);
+    }
+
+    @GetMapping("/boards")
+    public ResponseDto<List<PostResponseDto.AllPostResponseDto>> getPostList() {
+        if (!isAuthenticated()) {
+            return postService.getPostListByAnonymous();
+        }
+        return postService.getPostListByMember();
     }
 
     @GetMapping("/board/{id}")

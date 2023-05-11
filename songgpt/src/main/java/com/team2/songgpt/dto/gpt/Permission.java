@@ -1,6 +1,7 @@
 package com.team2.songgpt.dto.gpt;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -8,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
+@Schema(description = "모델 상태 정보")
 public class Permission {
     @JsonProperty("is_blocking")
     private boolean isBlocking;

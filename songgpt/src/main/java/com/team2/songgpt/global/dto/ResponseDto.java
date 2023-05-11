@@ -1,5 +1,6 @@
 package com.team2.songgpt.global.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.team2.songgpt.global.entity.StatusCode;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,8 +10,11 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor(staticName = "set")
 public class ResponseDto<T> {
+    @JsonProperty
     private StatusCode status;
+    @JsonProperty
     private String message;
+    @JsonProperty
     private T data;
 
     public static <T> ResponseDto<T> setSuccess(T data) {

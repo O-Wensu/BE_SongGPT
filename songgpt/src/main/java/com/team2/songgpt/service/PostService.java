@@ -117,6 +117,36 @@ public class PostService {
         return ResponseDto.setSuccess("anonymous: success", postResponseDto);
     }
 
+    /**
+     * 비회원
+     * 전체 게시글 조회
+     */
+    public ResponseDto<List<AllPostResponseDto>> getPostListByAnonymous() {
+        List<AllPostResponseDto> postResponseDtos = postRepository.findAll().stream().map(AllPostResponseDto::new).collect(Collectors.toList());
+        return ResponseDto.setSuccess("anonymous: success", postResponseDtos);
+    }
+
+    /**
+     * 회원
+     * 전체 게시글 조회
+     */
+    public ResponseDto<List<AllPostResponseDto>> getPostListByMember() {
+        Member member = getMember();
+        List<Post> responseList = postRepository.findAll();
+        List<AllPostResponseDto> postResponseDtoList = new ArrayList<>();
+
+        for (Post post : responseList) {
+            AllPostResponseDto allpostResponseDto = new AllPostResponseDto(post);
+            if (likeRepository.findByMemberIdAndPostId(member.getId(), post.getId()).isPresent()) {
+                allpostResponseDto.setLikeStatus(true);
+            }
+            postResponseDtoList.add(allpostResponseDto);
+        }
+
+        return ResponseDto.setSuccess("member: success", postResponseDtoList);
+    }
+
+
     private Member getMember() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         Member member = memberRepository.findByEmail(email).get();

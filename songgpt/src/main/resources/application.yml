@@ -16,3 +16,7 @@ spring:
 
 logging.level:
   org.hibernate.SQL: debug
+
+springdoc:
+  swagger-ui:
+    supported-submit-methods: '"get", "put", "post", "delete", "options", "head", "patch", "trace"'

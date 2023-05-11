@@ -23,6 +23,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
+
 
 @Tag(name = "Post", description = "게시글 API")
 @RestController
@@ -49,12 +51,21 @@ public class PostController {
         return postService.getAllPostByMember(pageable);
     }
 
+
     @Operation(summary = "Get post", description = "게시글 단일조회")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "400", description = "게시글 단일조회 실패",
                     content = @Content(schema = @Schema(implementation = ResponseDto.class)))
     })
+    @GetMapping("/boards")
+    public ResponseDto<List<PostResponseDto.AllPostResponseDto>> getPostList() {
+        if (!isAuthenticated()) {
+            return postService.getPostListByAnonymous();
+        }
+        return postService.getPostListByMember();
+    }
+
     @GetMapping("/board/{id}")
     public ResponseDto<PostResponseDto> getPost(@PathVariable Long id) {
         if (!isAuthenticated()) {

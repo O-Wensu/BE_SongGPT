@@ -1,6 +1,7 @@
 package com.team2.songgpt.dto.gpt;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -9,6 +10,7 @@ import java.util.List;
 
 @Getter
 @NoArgsConstructor
+@Schema(description = "ChatGpt가 응답 DTO")
 public class GptResponseDto implements Serializable {
     @JsonProperty("usage")
     private Usage usage;

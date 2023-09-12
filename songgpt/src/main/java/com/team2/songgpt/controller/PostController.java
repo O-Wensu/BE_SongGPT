@@ -1,7 +1,5 @@
 package com.team2.songgpt.controller;
 
-import com.team2.songgpt.dto.comment.CommentRequestDto;
-import com.team2.songgpt.dto.comment.CommentResponseDto;
 import com.team2.songgpt.dto.post.PostRequestDto;
 import com.team2.songgpt.dto.post.PostResponseDto;
 import com.team2.songgpt.global.dto.PageDto;
@@ -25,16 +23,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
-
 @Tag(name = "Post", description = "게시글 API")
 @RestController
 @RequiredArgsConstructor
 public class PostController {
 
     private final PostService postService;
-
-
-
 
     @Operation(summary = "Get posts", description = "게시글 전체조회")
     @ApiResponses({

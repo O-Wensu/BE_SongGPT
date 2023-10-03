@@ -3,6 +3,9 @@ name: CI/CD
 on:
   push:
     branches: [ "main" ]
+    
+env:
+  DOCKER_CLI_EXPERIMENTAL: disabled
 
 jobs:
   CICD:

@@ -24,16 +24,16 @@ jobs:
     ## Create YML
     - name : Create application-secret.yml File
       run : |
-        echo "${{secrets.APPLICATION_SECRET_YML}}" > $(pwd)/src/main/resources/application-secret.yml
-        find $(pwd)/src
+        echo "${{secrets.APPLICATION_SECRET_YML}}" > songgpt/src/main/resources/application-secret.yml
+        find songgpt/src
     - name : Create application-API-KEY.yml File
       run : |
-        echo "${{secrets.APPLICATION_API_KEY_YML}}" > src/main/resources/application-API-KEY.yml
-        find src
+        echo "${{secrets.APPLICATION_API_KEY_YML}}" > songgpt/src/main/resources/application-API-KEY.yml
+        find songgpt/src
     - name : Create application-aws.yml File
       run : |
-        echo "${{secrets.APPLICATION_AWS_YML}}" > src/main/resources/application-aws.yml
-        find src
+        echo "${{secrets.APPLICATION_AWS_YML}}" > songgpt/src/main/resources/application-aws.yml
+        find songgpt/src
         
     ## Permission for gradlew
     - name: Grant execute permission for gradlew

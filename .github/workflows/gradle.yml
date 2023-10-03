@@ -37,12 +37,12 @@ jobs:
         
     ## Permission for gradlew
     - name: Grant execute permission for gradlew
-      run: chmod +x ./gradlew
+      run: chmod +x songgpt/gradlew
       shell: bash
       
     ## Build Gradle
     - name: Build with Gradle  
-      run: ./gradlew build
+      run: songgpt/gradlew build
 
     ## Build and Push to Docker Hub
     - name: Docker build & push to Hub

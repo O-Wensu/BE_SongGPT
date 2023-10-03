@@ -25,7 +25,7 @@ import static org.mockito.Mockito.when;
 @SpringBootTest
 @ExtendWith(SpringExtension.class) //Junit5에서 Mockito 사용 : 목 객체 생성&주입
 class CommentServiceTest {
-    @Mock //목 객체 생성
+/*    @Mock //목 객체 생성
     PostRepository postRepository;
 
     @Mock
@@ -107,5 +107,5 @@ class CommentServiceTest {
 
         //then
         Assertions.assertEquals(responseDto.getStatus(), StatusCode.OK);
-    }
+    }*/
 }

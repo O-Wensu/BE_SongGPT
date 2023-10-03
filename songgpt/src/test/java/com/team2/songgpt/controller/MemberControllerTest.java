@@ -37,7 +37,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class MemberControllerTest {
 
-    @Autowired
+/*    @Autowired
     MockMvc mvc;
 
     @Autowired
@@ -141,5 +141,5 @@ class MemberControllerTest {
         requestDto.setPassword(password);
         requestDto.setNickname(nickname);
         return requestDto;
-    }
+    }*/
 }

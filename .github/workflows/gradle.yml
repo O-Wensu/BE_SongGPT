@@ -16,6 +16,11 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
+    - name: Print current directory
+      run: pwd
+    - name: List directory contents
+      run: ls -R
+
     ## Create YML
     - name : Create application-secret.yml File
       run : |

@@ -42,7 +42,9 @@ jobs:
       
     ## Build Gradle
     - name: Build with Gradle  
-      run: songgpt/gradlew build
+      run: |
+        cd songgpt
+        ./gradlew build
 
     ## Build and Push to Docker Hub
     - name: Docker build & push to Hub

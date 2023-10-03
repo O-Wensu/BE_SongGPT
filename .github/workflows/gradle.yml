@@ -48,12 +48,10 @@ jobs:
 
     ## Build and Push to Docker Hub
     - name: Docker build & push to Hub        
-      env:
-        DOCKER_CLI_EXPERIMENTAL: disabled
       run: |
         docker login -u ${{ secrets.DOCKER_USERNAME }} -p "${{ secrets.DOCKER_PASSWORD }}"
-        docker build -f Dockerfile -t ${{ secrets.DOCKER_USERNAME }}/{{ secrets.DOCKER_REPO }} .
-        docker push ${{ secrets.DOCKER_USERNAME }}/{{ secrets.DOCKER_REPO }}
+        docker build -f Dockerfile -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }} .
+        docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}
       
     ## Deploy EC2
     - name: Deploy to EC2
@@ -64,5 +62,5 @@ jobs:
           key: ${{ secrets.PRIVATE_KEY }}
           script: |
               sudo docker rm -f $(sudo docker ps -qa) # Remove all running containers
-              sudo docker pull ${{ secrets.DOCKER_USERNAME }}/{{ secrets.DOCKER_REPO }}
-              sudo docker run -d -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/{{ secrets.DOCKER_REPO }}
+              sudo docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}
+              sudo docker run -d -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}

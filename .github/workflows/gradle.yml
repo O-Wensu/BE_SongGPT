@@ -19,8 +19,8 @@ jobs:
     ## Create YML
     - name : Create application-secret.yml File
       run : |
-        echo "${{secrets.APPLICATION_SECRET_YML}}" > src/main/resources/application-secret.yml
-        find src
+        echo "${{secrets.APPLICATION_SECRET_YML}}" > $(pwd)/src/main/resources/application-secret.yml
+        find $(pwd)/src
     - name : Create application-API-KEY.yml File
       run : |
         echo "${{secrets.APPLICATION_API_KEY_YML}}" > src/main/resources/application-API-KEY.yml

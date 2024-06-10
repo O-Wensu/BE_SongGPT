@@ -173,26 +173,19 @@ public class MemberService {
      */
     @Transactional
     public ResponseDto<String> updateProfile(MultipartFile image, Member member) {
-        //중복된 이름 방지를 위한 UUID 붙이기
+        //중복된 이름 방지
         String fileName = UUID.randomUUID() + "-" + image.getOriginalFilename();
-
-        //메타 데이터 설정
         ObjectMetadata objMeta = new ObjectMetadata();
         objMeta.setContentType(image.getContentType());
         objMeta.setContentLength(image.getSize());
 
         try {
-            objMeta.setContentLength(image.getInputStream().available());
-            //s3에 파일 업로드
             amazonS3.putObject(bucket, fileName, image.getInputStream(), objMeta);
         } catch (IOException e) {
             throw new IllegalArgumentException(ExceptionMessage.FAIL_IMAGE_UPLOAD.getMessage());
         }
 
-        //이미지 url
         String imageUrl = amazonS3.getUrl(bucket, fileName).toString();
-
-        //회원 프로필 이미지 설정
         Member savedMember = memberValidator.validateMember(member.getEmail());
         savedMember.setImageUrl(imageUrl);
         return ResponseDto.setSuccess(imageUrl);
